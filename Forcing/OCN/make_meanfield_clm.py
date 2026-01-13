@@ -4,13 +4,7 @@ import matplotlib.pyplot as plt
 from stat_ncl import *
 import datetime as dt
 dir_io="../..//OUTPUTS/SPIN/"
-fflag="bulk_H130_cd_2.0_1_20"
-#fflag="bulk_H150_cd_2.1_1_20"
-#fflag="bulk_H150_cd_2.25_1_20"
-#fflag="bulk_H150_cd_2.5_1_20"
 fflag="bulk_H120_cd_1.7_1_20"
-#fflag="bulk_H150_cd_1.8_1_20"
-#fflag="bulk_H120_cd_1.8_1_20"
 
 fname_base=dir_io+"avg_spinup_clm_"+fflag+".nc"
 fname_base_sst="../SST/ERSST_v5_eqpac_v1_clm.nc"
