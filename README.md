@@ -10,22 +10,25 @@ This document summarizes the directory structure and the standard workflow to co
 ## Directory Structure
 ```
 CODES/
-Core source codes and Makefile
+- Core source codes and Makefile
 
 Forcing/
-Scripts and files for external forcing and background fields
+- Scripts and files for external forcing and background fields
 ├── OCN/ Ocean mean fields and preprocessing scripts
 ├── WIND/ Wind forcing files and preprocessing scripts
 ├── Tzm/ Background vertical temperature gradient fields
 └── SST/ Background SST fields
 
+GALLERY/
+- Postprocess tool and figures
+
 INPUT/
-Grid definition files and generation scripts
+- Grid definition files and generation scripts
 ├── OCN/ Ocean grid
 └── ATM/ Atmospheric grid
 
 RUN/
-Namelists and helper scripts for model execution
+- Namelists and helper scripts for model execution
 ├── OGCM/ Standalone ocean model runs
 └── CGCM/ Coupled ocean–atmosphere model runs
 ```
@@ -40,11 +43,11 @@ cd ZC_model
 ```
 
 ### 1. Compile the Source Codes
-Move to the CODES directory and compile the model.
+##### 1-1) Move to the CODES directory and compile the model.
 ``` bash
 cd CODES
 ```
-Edit the Makefile if necessary, paying particular attention to the netCDF include and library paths.
+#### 1-2) Edit the Makefile if necessary, paying particular attention to the netCDF include and library paths.
 ``` bash
 make -f Makefile
 ```
@@ -58,3 +61,29 @@ After successful compilation, the following executables should be created:
   - Computes atmospheric response using a Gill-type model, forced by prescribed SST.
 - exec_solver_couple_full.out
   - Runs the fully coupled Zebiak–Cane model after specifying background fields.
+
+### 2. Execute models
+#### 2-1) Spin-up OGCM to create mean current fields
+- Run OGCM
+``` bash
+cd ../RUN/OGCM
+mkdir -p ../../OUTPUTS/OGCM
+../../CODES/exec_solver_ocn_dyn.out < do_ogcm_spn_cd017H120.nml
+```
+- Process the background current field by taking time-mean 
+```bash
+cd ../../Forcing/OCN
+python make_meanfield_ann.py # Fields without annual cycle
+python make_meanfield_clm.py # Fields with annual cycle
+```
+#### 2-2) Execute CGCM simulation
+```bash
+cd ../../RUN/CGCM
+mkdir -p ../../OUTPUTS/CGCM
+../../CODES/exec_solver_couple_full.out < do_cgcm_ann_c1.7H120_dt3600_c10day.nml # With background fields without annual cycle
+../../CODES/exec_solver_couple_full.out < do_cgcm_clm_c1.7H120_dt3600_c10day.nml # With background fields with annual cycle
+```
+
+### 3 Visualize results
+Use Python notebooks in GALLERY/ directory 
+
