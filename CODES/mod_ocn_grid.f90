@@ -67,6 +67,9 @@ contains
     call get_variable(fname,"mask_p",(/1,1/),(/grd%nx_p+2,grd%ny_p+2/),v_2d)
     allocate(grd%mask_p%val(0:grd%nx_p+1,0:grd%ny_p+1))
     grd%mask_p%val(0:grd%nx_p+1,0:grd%ny_p+1)=v_2d(1:grd%nx_p+2,1:grd%ny_p+2)
+    call get_variable(fname,"damp_p",(/1,1/),(/grd%nx_p+2,grd%ny_p+2/),v_2d)
+    allocate(grd%damp_p%val(0:grd%nx_p+1,0:grd%ny_p+1))
+    grd%damp_p%val(0:grd%nx_p+1,0:grd%ny_p+1)=v_2d(1:grd%nx_p+2,1:grd%ny_p+2)
   end subroutine read_ocn_dyn_grd
     subroutine read_ocn_sst_grd(fname,grd)
     implicit none
@@ -119,7 +122,6 @@ contains
     real(idx),parameter :: scale=10
     integer,parameter :: nys=10
     nx_p=grd%nx_p;ny_p=grd%ny_p
-    allocate(grd%damp_p%val(0:nx_p+1,0:ny_p+1))
     grd%damp_p%val(0:nx_p+1,0:ny_p+1)=(1.0_idx/(oset%r_ocn_day*day_to_sec))*grd%damp_p%val(0:nx_p+1,0:ny_p+1)
     grd%damp_u%val(1:nx_p+1,0:ny_p+1)=(1.0_idx/(oset%r_ocn_day*day_to_sec))*grd%damp_u%val(1:nx_p+1,0:ny_p+1)
     grd%damp_v%val(0:nx_p+1,1:ny_p+1)=(1.0_idx/(oset%r_ocn_day*day_to_sec))*grd%damp_v%val(0:nx_p+1,1:ny_p+1)
