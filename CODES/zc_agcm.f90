@@ -127,7 +127,7 @@ end if
 !     call return_uvp_fromSST_GJ20(agrd,aset)
      call oper_avg_atm(agrd)
      if (itime .eq. istep_avg(iavg)) then
-        write(*,*) "Step (average) =",iavg," ",itime,iavg_count
+        write(*,*) "Step (average) =",iavg," ",tmp_yymmdd,tmp_hhmmss,iavg_count
         call write_avg_atm(fname_avg_atm,agrd,iavg_count,iavg)
         iavg_count=0
         iavg=iavg+1
