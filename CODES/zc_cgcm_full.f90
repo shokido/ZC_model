@@ -93,7 +93,6 @@ program zc_cgcm_full
   character(len=maxlen) :: timename_atm_sstm,varname_atm_sstm
   character(1) :: Lcycle_atm_sstm
   real(idx) :: Tcycle_atm_sstm
-#if defined CONV
   type(TLL_dta) :: atm_uam_dta
   integer :: nfile_atm_uam
   character(len=maxlen),allocatable :: fnames_atm_uam(:)
@@ -106,7 +105,6 @@ program zc_cgcm_full
   character(len=maxlen) :: timename_atm_vam,varname_atm_vam
   character(1) :: Lcycle_atm_vam
   real(idx) :: Tcycle_atm_vam
-#endif
   integer :: tmp_yymmdd,tmp_hhmmss
 
   namelist/date/dt,start_yymmdd,start_hhmmss,end_yymmdd,end_hhmmss,time_couple
@@ -138,12 +136,10 @@ program zc_cgcm_full
   namelist/Tzm_io_ocn/fnames_ocn_Tzm
   namelist/sstm_param_atm/nfile_atm_sstm,timename_atm_sstm,varname_atm_sstm,Lcycle_atm_sstm,Tcycle_atm_sstm
   namelist/sstm_io_atm/fnames_atm_sstm
-#if defined CONV
   namelist/uam_param_atm/nfile_atm_uam,timename_atm_uam,varname_atm_uam,Lcycle_atm_uam,Tcycle_atm_uam
   namelist/uam_io_atm/fnames_atm_uam
   namelist/vam_param_atm/nfile_atm_vam,timename_atm_vam,varname_atm_vam,Lcycle_atm_vam,Tcycle_atm_vam
   namelist/vam_io_atm/fnames_atm_vam
-#endif
   read(5,date)
   read(5,io_ocn)
   read(5,io_atm)
@@ -177,14 +173,14 @@ program zc_cgcm_full
   read(5,sstm_param_atm)
   allocate(fnames_atm_sstm(nfile_atm_sstm))
   read(5,sstm_io_atm)
-#if defined CONV
-  read(5,uam_param_atm)
-  allocate(fnames_atm_uam(nfile_atm_uam))
-  read(5,uam_io_atm)
-  read(5,vam_param_atm)
-  allocate(fnames_atm_vam(nfile_atm_vam))
-  read(5,vam_io_atm)
-#endif
+  if (aset%heating_type=="ZC87_conv") then
+     read(5,uam_param_atm)
+     allocate(fnames_atm_uam(nfile_atm_uam))
+     read(5,uam_io_atm)
+     read(5,vam_param_atm)
+     allocate(fnames_atm_vam(nfile_atm_vam))
+     read(5,vam_io_atm)
+   end if
   ! Parameter
   ! Time setting
   call calendar_cal_length_ymdhms(start_yymmdd,start_hhmmss,end_yymmdd,end_hhmmss,1,tmp1)
@@ -242,14 +238,14 @@ program zc_cgcm_full
   call read_data_TLL_atm(nfile_atm_sstm,fnames_atm_sstm,timename_atm_sstm,&
        & varname_atm_sstm,agrd,atm_sstm_dta,start_yymmdd,start_hhmmss)
   atm_sstm_dta%Lcycle=Lcycle_atm_sstm;atm_sstm_dta%Tcycle=Tcycle_atm_sstm
-#if defined CONV
-  call read_data_TLL_atm(nfile_atm_uam,fnames_atm_uam,timename_atm_uam,&
-       & varname_atm_uam,agrd,atm_uam_dta,start_yymmdd,start_hhmmss)
-  atm_uam_dta%Lcycle=Lcycle_atm_uam;atm_uam_dta%Tcycle=Tcycle_atm_uam
-  call read_data_TLL_atm(nfile_atm_vam,fnames_atm_vam,timename_atm_vam,&
-       & varname_atm_vam,agrd,atm_vam_dta,start_yymmdd,start_hhmmss)
-  atm_vam_dta%Lcycle=Lcycle_atm_vam;atm_vam_dta%Tcycle=Tcycle_atm_vam
-#endif  
+  if (aset%heating_type=="ZC87_conv") then
+     call read_data_TLL_atm(nfile_atm_uam,fnames_atm_uam,timename_atm_uam,&
+          & varname_atm_uam,agrd,atm_uam_dta,start_yymmdd,start_hhmmss)
+     atm_uam_dta%Lcycle=Lcycle_atm_uam;atm_uam_dta%Tcycle=Tcycle_atm_uam
+     call read_data_TLL_atm(nfile_atm_vam,fnames_atm_vam,timename_atm_vam,&
+          & varname_atm_vam,agrd,atm_vam_dta,start_yymmdd,start_hhmmss)
+     atm_vam_dta%Lcycle=Lcycle_atm_vam;atm_vam_dta%Tcycle=Tcycle_atm_vam
+ end if  
   ! Make averaged file
   call create_avg_ocn_dyn_ZC(fname_avg_ocn,ogrd,oset,&
        & start_yymmdd,start_hhmmss,end_yymmdd,end_hhmmss,dt,&
@@ -289,18 +285,19 @@ program zc_cgcm_full
        ! Get climatological SST
         call get_data_TLL_atm(time_int,agrd,atm_sstm_dta)
         agrd%sstm_atm%val=atm_sstm_dta%data_now%val
-#if defined CONV
-        call get_data_TLL_atm(time_int,agrd,atm_uam_dta)
-        call get_data_TLL_atm(time_int,agrd,atm_vam_dta)
-#endif
+        if (aset%heating_type=="ZC87_conv") then
+          call get_data_TLL_atm(time_int,agrd,atm_uam_dta)
+          call get_data_TLL_atm(time_int,agrd,atm_vam_dta)
+        end if
         ! Send SSTA to ATM.grid
         call exchange_OtoA(cgrd,ogrd,agrd)
-#if defined CONV
-        call return_uvp_fromSST_conv(agrd,aset,atm_uam_dta,atm_vam_dta)
-#else
+if (aset%heating_type=="ZC87") then
         call return_uvp_fromSST_ZC87(agrd,aset)
-!        call return_uvp_fromSST_GJ20(agrd,aset)
-#endif
+else if (aset%heating_type=="ZC87_conv") then
+        call return_uvp_fromSST_conv(agrd,aset,atm_uam_dta,atm_vam_dta)
+else if (aset%heating_type=="GJ22") then
+      call return_uvp_fromSST_GJ22(agrd,aset)
+end if
         ! Exchange information
         call exchange_AtoO(cgrd,ogrd,agrd)
      end if
