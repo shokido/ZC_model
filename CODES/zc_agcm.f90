@@ -30,7 +30,6 @@ program zc_agcm
   character(len=maxlen) :: timename_atm_ssta,varname_atm_ssta
   character(1) :: Lcycle_atm_ssta
   real(idx) :: Tcycle_atm_ssta
-#if defined ATM_CONV
   ! Climatological zonal wind
   type(TLL_dta) :: atm_uam_dta
   integer :: nfile_atm_uam
@@ -45,7 +44,6 @@ program zc_agcm
   character(len=maxlen) :: timename_atm_vam,varname_atm_vam
   character(1) :: Lcycle_atm_vam
   real(idx) :: Tcycle_atm_vam
-#endif
   namelist/date/dt,start_yymmdd,start_hhmmss,end_yymmdd,end_hhmmss
   namelist/io_atm/fname_grd_atm
   namelist/io_atm/fname_avg_atm,out_avg_flag,out_avg_int
@@ -54,12 +52,10 @@ program zc_agcm
   namelist/sstm_io_atm/fnames_atm_sstm
   namelist/ssta_param_atm/nfile_atm_ssta,timename_atm_ssta,varname_atm_ssta,Lcycle_atm_ssta,Tcycle_atm_ssta
   namelist/ssta_io_atm/fnames_atm_ssta
-#if defined ATM_CONV
   namelist/uam_param_atm/nfile_atm_uam,timename_atm_uam,varname_atm_uam,Lcycle_atm_uam,Tcycle_atm_uam
   namelist/uam_io_atm/fnames_atm_uam
   namelist/vam_param_atm/nfile_atm_vam,timename_atm_vam,varname_atm_vam,Lcycle_atm_vam,Tcycle_atm_vam
   namelist/vam_io_atm/fnames_atm_vam
-#endif
   read(5,date)
   read(5,io_atm)
   read(5,param_atm)
@@ -123,7 +119,7 @@ end if
      agrd%sstm_atm%val=atm_sstm_dta%data_now%val
 if (aset%heating_type=="ZC87") then
      call return_uvp_fromSST_ZC87(agrd,aset)
-else if (aset%heating_type=="ZC87_CONV") then
+else if (aset%heating_type=="ZC87_conv") then
      call return_uvp_fromSST_ZC87_conv(agrd,aset,atm_uam_dta,atm_vam_dta)
 else if (aset%heating_type=="GJ22") then
      call return_uvp_fromSST_GJ22(agrd,aset)
@@ -140,4 +136,8 @@ end if
   end do
   deallocate(fnames_atm_ssta)
   deallocate(fnames_atm_sstm)
+if (aset%heating_type=="ZC87_conv") then
+  deallocate(fnames_atm_uam)
+  deallocate(fnames_atm_vam)
+end if
 end program zc_agcm

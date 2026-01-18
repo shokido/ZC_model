@@ -18,7 +18,7 @@ contains
     end do
   end subroutine get_heatsource_ZC1987
   ! Obtain heatsource from SST anomaly and climatology
-  subroutine get_heatsource_GJ2020(nx,ny,sst_clm,sst_anm,q_d_to_nd,q)
+  subroutine get_heatsource_GJ2022(nx,ny,sst_clm,sst_anm,q_d_to_nd,q)
     implicit none
     integer,intent(in) :: nx,ny
     real(idx),intent(in) :: sst_clm(nx,ny),sst_anm(nx,ny)
@@ -36,7 +36,7 @@ contains
                &)
        end do
     end do
-  end subroutine get_heatsource_GJ2020
+  end subroutine get_heatsource_GJ2022
   ! Get fourier coefficients of U,V,P from that of Q
   subroutine get_uvpk(nx,ny,k,y,eps,qk,uk,vk,pk)
     implicit none
@@ -90,7 +90,9 @@ contains
     complex,allocatable :: qk(:,:),pk(:,:),uk(:,:),vk(:,:)
     integer :: nx,ny
     real(idx) :: q_d_to_nd,alpha,eps
-    real(idx),parameter :: alpha_0 = 1.0_idx / 300.0_idx, m0 = 1.0 / 5.0e3,cp2=1.0e3
+    real(idx),parameter :: alpha_0 = 1.0_idx / 300.0_idx ! in [1/K]
+    real(idx),parameter :: m0 = 1.0 / 5.0e3 ! in [1/m]
+    real(idx),parameter :: cp2=1.0e3 ! in m^2*s^(-2)*K^(-1)
     nx=agrd%nx_atm
     ny=agrd%ny_atm   
     allocate(qk(1:nx,1:ny)) ; allocate(pk(1:nx,1:ny))
@@ -100,6 +102,7 @@ contains
     eps = (1.0 / (aset%eps_s_atm_day * 60.0_idx*60.0_idx*24.0_idx))*&
          & (1.0_idx / sqrt(2.0_idx * beta * aset%cp_atm))
     q_d_to_nd  = (g * alpha_0) / ((aset%cp_atm * aset%cp_atm * sqrt(2.0 * beta * aset%cp_atm)) *(m0*cp2))
+    ! In [s^3/m^2]
     call get_heatsource_ZC1987(nx,ny,&
          &   agrd%sstm_atm%val(1:nx,1:ny),&
          &   agrd%ssta_atm%val(1:nx,1:ny),&
@@ -139,7 +142,9 @@ contains
     complex,allocatable :: qk(:,:),pk(:,:),uk(:,:),vk(:,:)
     integer :: nx,ny
     real(idx) :: q_d_to_nd,alpha,eps
-    real(idx),parameter :: alpha_0 = 1.0_idx / 300.0_idx, m0 = 1.0 / 5.0e3,cp2=1.0e3
+    real(idx),parameter :: alpha_0 = 1.0_idx / 300.0_idx ! in [1/K]
+    real(idx),parameter :: m0 = 1.0 / 5.0e3 ! in [1/m]
+    real(idx),parameter :: cp2=1.0e3 ! in m^2*s^(-2)*K^(-1)
     nx=agrd%nx_atm
     ny=agrd%ny_atm   
     allocate(qk(1:nx,1:ny)) ; allocate(pk(1:nx,1:ny))
@@ -149,7 +154,7 @@ contains
     eps = (1.0 / (aset%eps_s_atm_day * 60.0_idx*60.0_idx*24.0_idx))*&
          & (1.0_idx / sqrt(2.0_idx * beta * aset%cp_atm))
     q_d_to_nd  = (g * alpha_0) / ((aset%cp_atm * aset%cp_atm * sqrt(2.0 * beta * aset%cp_atm)) *(m0*cp2))
-    call get_heatsource_GJ2020(nx,ny,&
+    call get_heatsource_GJ2022(nx,ny,&
          &   agrd%sstm_atm%val(1:nx,1:ny),&
          &   agrd%ssta_atm%val(1:nx,1:ny),&
          &   q_d_to_nd,agrd%qa_atm%val(1:nx,1:ny))
@@ -188,9 +193,11 @@ contains
     complex ,allocatable :: qk(:,:),pk(:,:),uk(:,:),vk(:,:)
     integer :: nx,ny,niter
     real(idx) :: q_d_to_nd,alpha,eps,b1,b2
-    real(idx),parameter :: alpha_0 = 1.0_idx / 300.0_idx, m0 = 1.0 / 5.0e3,cp2=1.0e3
-    real(idx),parameter :: beta_cnv_atm=1.6e4
-    real(idx) :: cnv_nd
+    real(idx),parameter :: alpha_0 = 1.0_idx / 300.0_idx ! in [1/K]
+    real(idx),parameter :: m0 = 1.0 / 5.0e3 ! in [1/m]
+    real(idx),parameter :: cp2=1.0e3 ! in m^2*s^(-2)*K^(-1)
+    real(idx),parameter :: beta_cnv_atm=1.6e4 ! In [m^2/s^2]
+    real(idx) :: cnv_nd_to_d
     niter=3
     nx=agrd%nx_atm
     ny=agrd%ny_atm
@@ -201,7 +208,7 @@ contains
     allocate(q0(1:nx,1:ny))
     allocate(cnv(1:nx,1:ny))
     allocate(cnvm(1:nx,1:ny))
-    cnv_nd=sqrt(aset%cp_atm*2.0_idx*beta)
+    cnv_nd_to_d=sqrt(aset%cp_atm*2.0_idx*beta) ! (1/s); Nondimensional to dimensional
     ! Calculate convergence
     cnvm(1:nx,1:ny)=0.0_idx
     do iy=2,ny-1
@@ -214,10 +221,10 @@ contains
           if (ix1 > nx) then
              ix1=1
           end if
-          cnvm(ix,iy)=(-1.0_idx*(uam_grd%data_now%val(ix1,iy)-uam_grd%data_now%val(ix2,iy))/&
+          cnvm(ix,iy)=cnv_nd_to_d*(-1.0_idx*(uam_grd%data_now%val(ix1,iy)-uam_grd%data_now%val(ix2,iy))/&
                & (agrd%x_atm%val(ix1)-agrd%x_atm%val(ix2))&
                & -(vam_grd%data_now%val(ix,iy+1)-vam_grd%data_now%val(ix,iy-1))/&
-               & (agrd%y_atm%val(iy+1)-agrd%y_atm%val(iy-1)))/(aset%cp_atm*cnv_nd)
+               & (agrd%y_atm%val(iy+1)-agrd%y_atm%val(iy-1)))/(aset%cp_atm)
        end do
     end do
 
@@ -225,7 +232,6 @@ contains
     eps = (1.0 / (aset%eps_s_atm_day * 60.0_idx*60.0_idx*24.0_idx))*&
          & (1.0_idx / sqrt(2.0_idx * beta * aset%cp_atm))
     q_d_to_nd  = (g * alpha_0) / ((aset%cp_atm * aset%cp_atm * sqrt(2.0 * beta * aset%cp_atm)) *(m0*cp2))
-    ! g*alpha/ (cp*cp*sqrt(2*beta*cp))
     ! First guess of heat source
     call get_heatsource_ZC1987(nx,ny,&
          &   agrd%sstm_atm%val(1:nx,1:ny),&
@@ -233,7 +239,6 @@ contains
          &   alpha,q_d_to_nd,q0(1:nx,1:ny))
     q(1:nx,1:ny)=q0(1:nx,1:ny)
     do iter =1,niter
-
        !==========================================
        ! Fourier transform of heating function
        !==========================================
@@ -267,10 +272,10 @@ contains
              if (ix2 < 1) then
                 ix2=nx
              end if
-             cnv(ix,iy)=(-1.0_idx*(utmp(ix1,iy)-utmp(ix2,iy))/&
+             cnv(ix,iy)=cnv_nd_to_d*(-1.0_idx*(utmp(ix1,iy)-utmp(ix2,iy))/&
                   & (agrd%x_atm%val(ix1)-agrd%x_atm%val(ix2))&
                   & -(vtmp(ix,iy+1)-vtmp(ix,iy-1))/&
-                  & (agrd%y_atm%val(iy+1)-agrd%y_atm%val(iy-1)))/(aset%cp_atm*cnv_nd)
+                  & (agrd%y_atm%val(iy+1)-agrd%y_atm%val(iy-1)))/(aset%cp_atm)
           end do
        end do
        ! Calculate heating
@@ -286,20 +291,21 @@ contains
              else
                 b2=0.0_idx
              end if
+             if (q0(ix,iy).ne. 0.0_idx) then
              q(ix,iy)=q0(ix,iy)+q_d_to_nd*beta_cnv_atm*&
                   & (b1-b2)             
+             else
+               q(ix,iy)=0.0_idx
+             end if
           end do
        end do
     end do
     do iy = 1,ny
        agrd%pa_atm%val(1:nx,iy)=real(fft_back(nx,pk(1:nx,iy)))*&
             & aset%cp_atm*aset%cp_atm*1.3_idx / 100.0_idx ! in [hpa]
-       agrd%ua_atm%val(1:nx,iy)=real(fft_back(nx,uk(1:nx,iy)))*&
-            & aset%cp_atm ! in [m/s]
-       agrd%va_atm%val(1:nx,iy)=real(fft_back(nx,vk(1:nx,iy)))*&
-            & aset%cp_atm ! in [m/s]
-!       agrd%qa_atm%val(1:nx,iy)=q(1:nx,iy)/q_d_to_nd
-       agrd%qa_atm%val(1:nx,iy)=cnvm(1:nx,iy)!/q_d_to_nd
+       agrd%ua_atm%val(1:nx,iy)=utmp(1:nx,iy)
+       agrd%va_atm%val(1:nx,iy)=vtmp(1:nx,iy)
+       agrd%qa_atm%val(1:nx,iy)=q(1:nx,iy)/q_d_to_nd
     end do
     deallocate(utmp);deallocate(vtmp)
     deallocate(qk);deallocate(pk)
