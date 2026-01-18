@@ -100,6 +100,7 @@ module run_types
      real(idx) :: cp_atm=60.0_idx ! Speed of atmospheric gravity wave (in [m/s])
      real(idx) :: eps_s_atm_day=1.106364457323311_idx
      real(idx) :: alpha_gill_atm=0.031_idx      
+     character :: heating_types="ZC87" ! Heating function form; "ZC87"; "ZC87conv"; "GJ22"
   end type atm_set
   type :: TLL_dta
      integer :: ind1,ind2,ntime

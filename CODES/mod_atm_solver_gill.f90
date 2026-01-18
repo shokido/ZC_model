@@ -128,7 +128,10 @@ contains
        agrd%qa_atm%val(1:nx,iy)=agrd%qa_atm%val(1:nx,iy)/q_d_to_nd
     end do
   end subroutine return_uvp_fromSST_ZC87
-  subroutine return_uvp_fromSST_GJ20(agrd,aset)
+  subroutine return_uvp_fromSST_GJ22(agrd,aset)
+   ! Heating function based on Geng and Jin 2022
+   ! "ENSO Diversity Simulated in a Revised Cane-Zebiak Model"
+   ! https://doi.org/10.3389/feart.2022.899323
     implicit none
     type(atm_dta),intent(inout) :: agrd
     type(atm_set),intent(in) :: aset
@@ -173,8 +176,8 @@ contains
             & aset%cp_atm ! in [m/s]
        agrd%qa_atm%val(1:nx,iy)=agrd%qa_atm%val(1:nx,iy)/q_d_to_nd
     end do
-  end subroutine return_uvp_fromSST_GJ20
-  subroutine return_uvp_fromSST_conv(agrd,aset,uam_grd,vam_grd)
+  end subroutine return_uvp_fromSST_GJ22
+  subroutine return_uvp_fromSST_ZC87_conv(agrd,aset,uam_grd,vam_grd)
     implicit none
     type(atm_dta),intent(inout) :: agrd
     type(atm_set),intent(in) :: aset
@@ -303,7 +306,7 @@ contains
     deallocate(uk);deallocate(vk)
     deallocate(q0);deallocate(q)
     deallocate(cnv);deallocate(cnvm)
-  end subroutine return_uvp_fromSST_conv
+  end subroutine return_uvp_fromSST_ZC87_conv
 
   ! Solver
   subroutine solve_tri_cmp(N,A_in,B_in,C_in,D_in,U)

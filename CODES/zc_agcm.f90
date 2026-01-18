@@ -69,15 +69,14 @@ program zc_agcm
   read(5,ssta_param_atm)
   allocate(fnames_atm_ssta(nfile_atm_ssta))
   read(5,ssta_io_atm)
-#if defined ATM_CONV
-  read(5,uam_param_atm)
-  allocate(fnames_atm_uam(nfile_atm_uam))
-  read(5,uam_io_atm)
-  read(5,vam_param_atm)
-  allocate(fnames_atm_vam(nfile_atm_vam))
-  read(5,vam_io_atm)
-#endif
-  ! Parameter
+  if (aset%heating_type=="ZC87_conv") then
+    read(5,uam_param_atm)
+    allocate(fnames_atm_uam(nfile_atm_uam))
+    read(5,uam_io_atm)
+    read(5,vam_param_atm)
+    allocate(fnames_atm_vam(nfile_atm_vam))
+    read(5,vam_io_atm)
+  endif
   ! Time setting
   call calendar_cal_length_ymdhms(start_yymmdd,start_hhmmss,end_yymmdd,end_hhmmss,1,tmp1)
   total_time=int(tmp1);ntime=int(tmp1/(dt*sec_to_day))
@@ -93,14 +92,14 @@ program zc_agcm
   call read_data_TLL_atm(nfile_atm_ssta,fnames_atm_ssta,timename_atm_ssta,&
        & varname_atm_ssta,agrd,atm_ssta_dta,start_yymmdd,start_hhmmss)
   atm_ssta_dta%Lcycle=Lcycle_atm_ssta;atm_ssta_dta%Tcycle=Tcycle_atm_ssta
-#if defined ATM_CONV
+if (aset%heating_type=="ZC87_conv") then
   call read_data_TLL_atm(nfile_atm_uam,fnames_atm_uam,timename_atm_uam,&
        & varname_atm_uam,agrd,atm_uam_dta,start_yymmdd,start_hhmmss)
   atm_uam_dta%Lcycle=Lcycle_atm_uam;atm_uam_dta%Tcycle=Tcycle_atm_uam
   call read_data_TLL_atm(nfile_atm_vam,fnames_atm_vam,timename_atm_vam,&
        & varname_atm_vam,agrd,atm_vam_dta,start_yymmdd,start_hhmmss)
   atm_vam_dta%Lcycle=Lcycle_atm_vam;atm_vam_dta%Tcycle=Tcycle_atm_vam
-#endif
+end if
   ! Make averaged file
   call create_avg_atm_ZC(fname_avg_atm,agrd,&
        & start_yymmdd,start_hhmmss,end_yymmdd,end_hhmmss,dt,&
@@ -115,23 +114,21 @@ program zc_agcm
      call get_data_TLL_atm(time_int,agrd,atm_ssta_dta)
      ! Get SST anomaly
      call get_data_TLL_atm(time_int,agrd,atm_sstm_dta)
-#if defined ATM_CONV
+if (aset%heating_type=="ZC87_conv") then
      ! Get climatological Wind
      call get_data_TLL_atm(time_int,agrd,atm_uam_dta)
      call get_data_TLL_atm(time_int,agrd,atm_vam_dta)
-#endif
-     do iy=1,agrd%ny_atm
-        do ix=1,agrd%nx_atm
-           if (abs(atm_sstm_dta%data_now%val(ix,iy))>40) then
-              atm_sstm_dta%data_now%val(ix,iy)=0
-              atm_ssta_dta%data_now%val(ix,iy)=0
-           end if
-        end do
-     end do
+end if
      agrd%ssta_atm%val=atm_ssta_dta%data_now%val
      agrd%sstm_atm%val=atm_sstm_dta%data_now%val
-!     call return_uvp_fromSST_ZC87(agrd,aset)
-     call return_uvp_fromSST_GJ20(agrd,aset)
+if (aset%heating_type=="ZC87") then
+     call return_uvp_fromSST_ZC87(agrd,aset)
+else if (aset%heating_type=="ZC87_CONV") then
+     call return_uvp_fromSST_ZC87_conv(agrd,aset,atm_uam_dta,atm_vam_dta)
+else if (aset%heating_type=="GJ22") then
+     call return_uvp_fromSST_GJ22(agrd,aset)
+end if
+!     call return_uvp_fromSST_GJ20(agrd,aset)
      call oper_avg_atm(agrd)
      if (itime .eq. istep_avg(iavg)) then
         write(*,*) "Step (average) =",iavg," ",itime,iavg_count
