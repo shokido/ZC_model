@@ -98,8 +98,8 @@ program zc_ogcm_dyn
      time_int=dt*itime*sec_to_day
      iavg_count = iavg_count + 1
      ! Get uw and vw
-     call get_data_TLL_p(time_int,ogrd,ocn_taux_dta)
-     call get_data_TLL_p(time_int,ogrd,ocn_tauy_dta)
+     call get_data_TLL_p(time_int,start_yymmdd,start_hhmmss,ogrd,ocn_taux_dta)
+     call get_data_TLL_p(time_int,start_yymmdd,start_hhmmss,ogrd,ocn_tauy_dta)
 #if defined WSTRESS_BULK
      ! Read surface wind
      ogrd%ua_ocn%val=ocn_taux_dta%data_now%val

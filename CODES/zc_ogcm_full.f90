@@ -242,20 +242,20 @@ program zc_ogcm_full
      iavg_count = iavg_count + 1
      idiag_count = idiag_count + 1
      ! Obtain wind anomalies
-     call get_data_TLL_p(time_int,ogrd,ocn_taux_dta)
-     call get_data_TLL_p(time_int,ogrd,ocn_tauy_dta)
+     call get_data_TLL_p(time_int,start_yymmdd,start_hhmmss,ogrd,ocn_taux_dta)
+     call get_data_TLL_p(time_int,start_yymmdd,start_hhmmss,ogrd,ocn_tauy_dta)
      ! Obtain mean SST fields
-     call get_data_TLL_p(time_int,ogrd,ocn_sstm_dta)
+     call get_data_TLL_p(time_int,start_yymmdd,start_hhmmss,ogrd,ocn_sstm_dta)
      ! Obtain mean wind fields
-     call get_data_TLL_p(time_int,ogrd,ocn_tauxm_dta)
+     call get_data_TLL_p(time_int,start_yymmdd,start_hhmmss,ogrd,ocn_tauxm_dta)
      ! Obtain mean vw fields
-     call get_data_TLL_p(time_int,ogrd,ocn_tauym_dta)
+     call get_data_TLL_p(time_int,start_yymmdd,start_hhmmss,ogrd,ocn_tauym_dta)
      ! Obtain mean ocean fields
-     call get_data_TLL_u(time_int,ogrd,ocn_um_dta)
-     call get_data_TLL_v(time_int,ogrd,ocn_vm_dta)
-     call get_data_TLL_p(time_int,ogrd,ocn_wm_dta)
-     call get_data_TLL_p(time_int,ogrd,ocn_hm_dta)
-     call get_data_TLL_p(time_int,ogrd,ocn_Tzm_dta)
+     call get_data_TLL_u(time_int,start_yymmdd,start_hhmmss,ogrd,ocn_um_dta)
+     call get_data_TLL_v(time_int,start_yymmdd,start_hhmmss,ogrd,ocn_vm_dta)
+     call get_data_TLL_p(time_int,start_yymmdd,start_hhmmss,ogrd,ocn_wm_dta)
+     call get_data_TLL_p(time_int,start_yymmdd,start_hhmmss,ogrd,ocn_hm_dta)
+     call get_data_TLL_p(time_int,start_yymmdd,start_hhmmss,ogrd,ocn_Tzm_dta)
 
      ! Set wind stress
      ! Take anomalies

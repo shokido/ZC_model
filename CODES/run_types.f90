@@ -106,11 +106,12 @@ module run_types
      integer :: ind1,ind2,ntime
      real(idx) :: wgt1,wgt2
      type(vector_1d) :: time
+     type(vector_1d) :: time_cyc 
      type(vector_2d) :: data_mod
      type(vector_2d) :: data_now
      type(vector_3d) :: data
-     character(1) :: Lcycle
-     real(idx) :: Tcycle
+     character(1) :: Lcycle='F'
+     real(idx) :: Tcycle=365.0_idx
   end type TLL_dta
   type :: couple_dta
      type(int_3d) :: ind_AtoO_x,ind_AtoO_y

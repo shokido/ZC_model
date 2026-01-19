@@ -16,6 +16,7 @@ program zc_agcm
   integer :: start_yymmdd,start_hhmmss
   integer :: end_yymmdd,end_hhmmss
   integer :: ix,iy
+  integer :: tmp_yymmdd,tmp_hhmmss
   ! Climatological SST
   type(TLL_dta) :: atm_sstm_dta
   integer :: nfile_atm_sstm
@@ -107,13 +108,13 @@ end if
      time_int=dt*itime*sec_to_day
      iavg_count = iavg_count + 1
      ! Get climatological SST
-     call get_data_TLL_atm(time_int,agrd,atm_ssta_dta)
+     call get_data_TLL_atm(time_int,start_yymmdd,start_hhmmss,agrd,atm_ssta_dta)
      ! Get SST anomaly
-     call get_data_TLL_atm(time_int,agrd,atm_sstm_dta)
+     call get_data_TLL_atm(time_int,start_yymmdd,start_hhmmss,agrd,atm_sstm_dta)
 if (aset%heating_type=="ZC87_conv") then
      ! Get climatological Wind
-     call get_data_TLL_atm(time_int,agrd,atm_uam_dta)
-     call get_data_TLL_atm(time_int,agrd,atm_vam_dta)
+     call get_data_TLL_atm(time_int,start_yymmdd,start_hhmmss,agrd,atm_uam_dta)
+     call get_data_TLL_atm(time_int,start_yymmdd,start_hhmmss,agrd,atm_vam_dta)
 end if
      agrd%ssta_atm%val=atm_ssta_dta%data_now%val
      agrd%sstm_atm%val=atm_sstm_dta%data_now%val
@@ -127,6 +128,7 @@ end if
 !     call return_uvp_fromSST_GJ20(agrd,aset)
      call oper_avg_atm(agrd)
      if (itime .eq. istep_avg(iavg)) then
+        call calendar_cal_ymdhms_after(start_yymmdd,start_hhmmss,dt*itime*sec_to_day,1,tmp_yymmdd,tmp_hhmmss)
         write(*,*) "Step (average) =",iavg," ",tmp_yymmdd,tmp_hhmmss,iavg_count
         call write_avg_atm(fname_avg_atm,agrd,iavg_count,iavg)
         iavg_count=0

@@ -270,31 +270,31 @@ program zc_cgcm_full
      iavg_count = iavg_count + 1
      idiag_count = idiag_count + 1
      ! Obtain mean SST fields
-     call get_data_TLL_p(time_int,ogrd,ocn_sstm_dta)
+     call get_data_TLL_p(time_int,start_yymmdd,start_hhmmss,ogrd,ocn_sstm_dta)
      ! Obtain mean uw fields
-     call get_data_TLL_p(time_int,ogrd,ocn_tauxm_dta)
+     call get_data_TLL_p(time_int,start_yymmdd,start_hhmmss,ogrd,ocn_tauxm_dta)
      ! Obtain mean vw fields
-     call get_data_TLL_p(time_int,ogrd,ocn_tauym_dta)
+     call get_data_TLL_p(time_int,start_yymmdd,start_hhmmss,ogrd,ocn_tauym_dta)
      ! Obtain mean ocean fields
-     call get_data_TLL_u(time_int,ogrd,ocn_um_dta)
-     call get_data_TLL_v(time_int,ogrd,ocn_vm_dta)
-     call get_data_TLL_p(time_int,ogrd,ocn_wm_dta)
-     call get_data_TLL_p(time_int,ogrd,ocn_hm_dta)
-     call get_data_TLL_p(time_int,ogrd,ocn_Tzm_dta)
+     call get_data_TLL_u(time_int,start_yymmdd,start_hhmmss,ogrd,ocn_um_dta)
+     call get_data_TLL_v(time_int,start_yymmdd,start_hhmmss,ogrd,ocn_vm_dta)
+     call get_data_TLL_p(time_int,start_yymmdd,start_hhmmss,ogrd,ocn_wm_dta)
+     call get_data_TLL_p(time_int,start_yymmdd,start_hhmmss,ogrd,ocn_hm_dta)
+     call get_data_TLL_p(time_int,start_yymmdd,start_hhmmss,ogrd,ocn_Tzm_dta)
      if (mod(itime,ntime_couple)==0) then
        ! Get climatological SST
-        call get_data_TLL_atm(time_int,agrd,atm_sstm_dta)
+        call get_data_TLL_atm(time_int,start_yymmdd,start_hhmmss,agrd,atm_sstm_dta)
         agrd%sstm_atm%val=atm_sstm_dta%data_now%val
         if (aset%heating_type=="ZC87_conv") then
-          call get_data_TLL_atm(time_int,agrd,atm_uam_dta)
-          call get_data_TLL_atm(time_int,agrd,atm_vam_dta)
+          call get_data_TLL_atm(time_int,start_yymmdd,start_hhmmss,agrd,atm_uam_dta)
+          call get_data_TLL_atm(time_int,start_yymmdd,start_hhmmss,agrd,atm_vam_dta)
         end if
         ! Send SSTA to ATM.grid
         call exchange_OtoA(cgrd,ogrd,agrd)
 if (aset%heating_type=="ZC87") then
         call return_uvp_fromSST_ZC87(agrd,aset)
 else if (aset%heating_type=="ZC87_conv") then
-        call return_uvp_fromSST_conv(agrd,aset,atm_uam_dta,atm_vam_dta)
+        call return_uvp_fromSST_ZC87_conv(agrd,aset,atm_uam_dta,atm_vam_dta)
 else if (aset%heating_type=="GJ22") then
       call return_uvp_fromSST_GJ22(agrd,aset)
 end if

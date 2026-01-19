@@ -49,7 +49,7 @@ contains
     select case(trim(flag_char))
     case("seconds")
        flag=-10000
-    case("minitues")
+    case("minutes")
        flag=-100
     case("hours")
        flag=-1
@@ -65,12 +65,46 @@ contains
        call calendar_cal_length_ymdhms(start_yymmdd,start_hhmmss,tmp_yymmdd,tmp_hhmmss,1,time(it))
     end do
   end function modify_time
-  subroutine time_wgt(time_array,time,i1,i2,w1,w2)
+  subroutine calc_doy_from_units(ntime, time_tmp, time_units, doy)
+      implicit none
+      integer, intent(in) :: ntime
+      real(idx), intent(in) :: time_tmp(ntime)
+      character(len=*), intent(in) :: time_units
+      real(idx), intent(out) :: doy(ntime)
+      integer :: stamp_ind
+      integer :: ref_yymmdd, ref_hhmmss
+      integer :: it, ymd, hms, year, year0101
+      real(idx) :: tmp
+      call get_reftime(trim(time_units), stamp_ind, ref_yymmdd, ref_hhmmss)
+      do it = 1, ntime
+         call calendar_cal_ymdhms_after(ref_yymmdd, ref_hhmmss, time_tmp(it), stamp_ind, ymd, hms)
+         year = ymd/10000
+         year0101 = year*10000 + 101
+         tmp = 0.0_idx
+         call calendar_cal_day_length_ymdhms(year0101, 0, ymd, hms, tmp)
+         doy(it) = tmp
+   end do
+   end subroutine calc_doy_from_units
+   subroutine get_time_cyc_now(time_now, start_yymmdd, start_hhmmss, time_cyc_now)
+      implicit none
+      real(idx), intent(in) :: time_now
+      integer, intent(in) :: start_yymmdd, start_hhmmss
+      real(idx), intent(out) :: time_cyc_now
+      integer :: ymd, hms, year, year0101
+      real(idx) :: tmp
+      call calendar_cal_ymdhms_after(start_yymmdd, start_hhmmss, time_now, 1, ymd, hms) ! flag=1: day
+      year = ymd/10000
+      year0101 = year*10000 + 101
+      tmp = 0.0_idx
+      call calendar_cal_day_length_ymdhms(year0101, 0, ymd, hms, tmp)
+      time_cyc_now = tmp
+   end subroutine get_time_cyc_now  
+   subroutine time_wgt(time_array,time,i1,i2,w1,w2)
     real(idx),intent(in) :: time_array(:),time
     integer,intent(out) :: i1,i2    
     integer :: ntime
     real(idx) :: w1,w2
-    ntime=sum(shape(time_array))
+    ntime=size(time_array)
     if (ntime .ne. 1) then
        if (time  .gt. minval(time_array) .and. time .lt. maxval(time_array)) then
           i1 = sum(maxloc(time_array,mask=(time_array<=time)))
@@ -93,6 +127,44 @@ contains
        w1 = 1.0_idx ; w2 = 0.0_idx
     end if
   end subroutine time_wgt
+  subroutine time_wgt_cyclic(time_cyc_array, time_cyc_now, Tcycle, i1, i2, w1, w2)
+      implicit none
+      real(idx), intent(in) :: time_cyc_array(:)
+      real(idx), intent(in) :: time_cyc_now, Tcycle
+      integer, intent(out) :: i1, i2
+      real(idx), intent(out) :: w1, w2
+      integer :: ntime
+      real(idx) :: tmin, tmax, dt, tnow
+      ntime = size(time_cyc_array)
+      tmin = minval(time_cyc_array)
+      tmax = maxval(time_cyc_array)
+      if (ntime == 1) then
+         i1=1; i2=1; w1=1.0_idx; w2=0.0_idx
+         return
+      end if
+      if (time_cyc_now >= tmin .and. time_cyc_now <= tmax) then
+         i1 = sum(maxloc(time_cyc_array, mask=(time_cyc_array<=time_cyc_now)))
+         i2 = min(i1+1, ntime)
+         if (i1 == i2) then
+            w1=1.0_idx; w2=0.0_idx
+         else
+            w1 = (time_cyc_array(i2)-time_cyc_now) / (time_cyc_array(i2)-time_cyc_array(i1))
+            w2 = 1.0_idx - w1
+         end if
+      else
+         i1 = ntime
+         i2 = 1
+         if (time_cyc_now < tmin) then
+            tnow = time_cyc_now + Tcycle
+         else
+            tnow = time_cyc_now
+         end if
+
+         dt = (Tcycle - time_cyc_array(i1)) + time_cyc_array(i2)
+         w2 = (tnow - time_cyc_array(i1)) / dt
+         w1 = 1.0_idx - w2
+      end if
+  end subroutine time_wgt_cyclic
   function set_data(ind1,ind2,wgt1,wgt2,data_1d) result(data_ret)
     implicit none
     integer,intent(in) :: ind1,ind2
@@ -109,7 +181,7 @@ contains
     type(atm_dta),intent(in) :: agrd
     type(TLL_dta),intent(inout) :: wgrd
     integer :: nt,nx,ny,ntime
-    real(idx),allocatable :: time_tmp(:),time(:),time_out(:),data(:,:,:)
+    real(idx),allocatable :: time_tmp(:),time_cyc_tmp(:),time(:),time_out(:),data(:,:,:)
     character(len=maxlen) :: time_units
     integer :: ifile,it1,it2
     ntime=0
@@ -122,6 +194,7 @@ contains
 
     it1=1;it2=0
     allocate(wgrd%time%val(1:ntime))
+    allocate(wgrd%time_cyc%val(1:ntime)) 
     allocate(wgrd%data%val(1:nx,1:ny,1:ntime))
     allocate(wgrd%data_now%val(1:nx,1:ny))
     allocate(wgrd%data_mod%val(1:nx,1:ny))
@@ -131,13 +204,17 @@ contains
        call get_variable(trim(fnames(ifile)),timename,(/1/),(/nt/),time_tmp)
        call get_attribute(trim(fnames(ifile)),timename,"units",time_units)
        allocate(time(nt))
+       allocate(time_cyc_tmp(nt))
        time=modify_time(nt,time_tmp,time_units,start_yymmdd,start_hhmmss)
        it2=it1+nt-1
        call get_variable(trim(fnames(ifile)),varname,(/1,1,1/),(/nx,ny,nt/),data)
+       call calc_doy_from_units(nt, time_tmp, time_units, time_cyc_tmp)
        wgrd%time%val(it1:it2)=time(1:nt)
+       wgrd%time_cyc%val(it1:it2) = time_cyc_tmp(1:nt) 
        wgrd%data%val(1:nx,1:ny,it1:it2)=data(1:nx,1:ny,1:nt)
        it1=it2+1
        deallocate(time)
+       deallocate(time_cyc_tmp)
     end do
   end subroutine read_data_TLL_atm
   subroutine read_data_TLL_p(nfile,fnames,timename,varname,ogrd,wgrd,start_yymmdd,start_hhmmss)
@@ -148,7 +225,7 @@ contains
     type(ocn_dta),intent(in) :: ogrd
     type(TLL_dta),intent(inout) :: wgrd
     integer :: nt,nx,ny,ntime
-    real(idx),allocatable :: time_tmp(:),time(:),time_out(:),data(:,:,:)
+    real(idx),allocatable :: time_tmp(:),time_cyc_tmp(:),time(:),time_out(:),data(:,:,:)
     character(len=maxlen) :: time_units
     integer :: ifile,it1,it2
     ntime=0
@@ -161,6 +238,7 @@ contains
 
     it1=1;it2=0
     allocate(wgrd%time%val(1:ntime))
+    allocate(wgrd%time_cyc%val(1:ntime)) 
     allocate(wgrd%data%val(0:nx+1,0:ny+1,1:ntime))
     allocate(wgrd%data_now%val(0:nx+1,0:ny+1))
     allocate(wgrd%data_mod%val(0:nx+1,0:ny+1))
@@ -170,13 +248,17 @@ contains
        call get_variable(trim(fnames(ifile)),timename,(/1/),(/nt/),time_tmp)
        call get_attribute(trim(fnames(ifile)),timename,"units",time_units)
        allocate(time(nt))
+       allocate(time_cyc_tmp(nt))
        time=modify_time(nt,time_tmp,time_units,start_yymmdd,start_hhmmss)
        it2=it1+nt-1
        call get_variable(trim(fnames(ifile)),varname,(/1,1,1/),(/nx+2,ny+2,nt/),data)
+       call calc_doy_from_units(nt, time_tmp, time_units, time_cyc_tmp)
        wgrd%time%val(it1:it2)=time(1:nt)
+       wgrd%time_cyc%val(it1:it2) = time_cyc_tmp(1:nt) 
        wgrd%data%val(0:nx+1,0:ny+1,it1:it2)=data(1:nx+2,1:ny+2,1:nt)
        it1=it2+1
        deallocate(time)
+       deallocate(time_cyc_tmp)
     end do
   end subroutine read_data_TLL_p
   subroutine read_data_TLL_u(nfile,fnames,timename,varname,ogrd,wgrd,start_yymmdd,start_hhmmss)
@@ -187,7 +269,7 @@ contains
     type(ocn_dta),intent(in) :: ogrd
     type(TLL_dta),intent(inout) :: wgrd
     integer :: nt,nx,ny,ntime
-    real(idx),allocatable :: time_tmp(:),time(:),time_out(:),data(:,:,:)
+    real(idx),allocatable :: time_tmp(:),time_cyc_tmp(:),time(:),time_out(:),data(:,:,:)
     character(len=maxlen) :: time_units
     integer :: ifile,it1,it2
     ntime=0
@@ -200,6 +282,7 @@ contains
     ny=ogrd%ny_p
     it1=1;it2=0
     allocate(wgrd%time%val(1:ntime))
+    allocate(wgrd%time_cyc%val(1:ntime)) 
     allocate(wgrd%data%val(1:nx+1,0:ny+1,1:ntime))
     allocate(wgrd%data_now%val(1:nx+1,0:ny+1))
     allocate(wgrd%data_mod%val(1:nx+1,0:ny+1))
@@ -208,13 +291,17 @@ contains
        call get_variable(trim(fnames(ifile)),timename,(/1/),(/nt/),time_tmp)
        call get_attribute(trim(fnames(ifile)),timename,"units",time_units)
        allocate(time(nt))
+       allocate(time_cyc_tmp(nt))
        time=modify_time(nt,time_tmp,time_units,start_yymmdd,start_hhmmss)
        it2=it1+nt-1
        call get_variable(trim(fnames(ifile)),varname,(/1,1,1/),(/nx+1,ny+2,nt/),data)
+       call calc_doy_from_units(nt, time_tmp, time_units, time_cyc_tmp)
        wgrd%time%val(it1:it2)=time(1:nt)
+       wgrd%time_cyc%val(it1:it2) = time_cyc_tmp(1:nt) 
        wgrd%data%val(1:nx+1,0:ny+1,it1:it2)=data(1:nx+1,1:ny+2,1:nt)
        it1=it2+1
        deallocate(time)
+       deallocate(time_cyc_tmp)
     end do
   end subroutine read_data_TLL_u
   subroutine read_data_TLL_v(nfile,fnames,timename,varname,ogrd,wgrd,start_yymmdd,start_hhmmss)
@@ -225,7 +312,7 @@ contains
     type(ocn_dta),intent(in) :: ogrd
     type(TLL_dta),intent(inout) :: wgrd
     integer :: nt,nx,ny,ntime
-    real(idx),allocatable :: time_tmp(:),time(:),time_out(:),data(:,:,:)
+    real(idx),allocatable :: time_tmp(:),time_cyc_tmp(:),time(:),time_out(:),data(:,:,:)
     character(len=maxlen) :: time_units
     integer :: ifile,it1,it2
     ntime=0
@@ -238,6 +325,7 @@ contains
 
     it1=1;it2=0
     allocate(wgrd%time%val(1:ntime))
+    allocate(wgrd%time_cyc%val(1:ntime)) 
     allocate(wgrd%data%val(0:nx+1,1:ny+1,1:ntime))
     allocate(wgrd%data_now%val(0:nx+1,1:ny+1))
     allocate(wgrd%data_mod%val(0:nx+1,1:ny+1))
@@ -247,15 +335,111 @@ contains
        call get_variable(trim(fnames(ifile)),timename,(/1/),(/nt/),time_tmp)
        call get_attribute(trim(fnames(ifile)),timename,"units",time_units)
        allocate(time(nt))
+       allocate(time_cyc_tmp(nt))
        time=modify_time(nt,time_tmp,time_units,start_yymmdd,start_hhmmss)
        it2=it1+nt-1
        call get_variable(trim(fnames(ifile)),varname,(/1,1,1/),(/nx+2,ny+1,nt/),data)
+       call calc_doy_from_units(nt, time_tmp, time_units, time_cyc_tmp)
        wgrd%time%val(it1:it2)=time(1:nt)
+       wgrd%time_cyc%val(it1:it2) = time_cyc_tmp(1:nt) 
        wgrd%data%val(0:nx+1,1:ny+1,it1:it2)=data(1:nx+2,1:ny+1,1:nt)
        it1=it2+1
        deallocate(time)
+       deallocate(time_cyc_tmp)
     end do
   end subroutine read_data_TLL_v
+  subroutine get_data_TLL_atm(time_now,start_yymmdd,start_hhmmss,agrd,wgrd)
+    implicit none
+    real(idx),intent(in) :: time_now
+    integer, intent(in) :: start_yymmdd, start_hhmmss
+    type(atm_dta),intent(in) :: agrd
+    type(TLL_dta),intent(inout) :: wgrd
+    real(idx) :: time_int,time_cyc_now
+    real(idx) :: tmp1
+    integer :: ix,iy
+   if (wgrd%Lcycle == 'T') then
+      call get_time_cyc_now(time_now, start_yymmdd, start_hhmmss, time_cyc_now)
+      call time_wgt_cyclic(wgrd%time_cyc%val, time_cyc_now, wgrd%Tcycle, &
+                           wgrd%ind1, wgrd%ind2, wgrd%wgt1, wgrd%wgt2)
+   else
+      call time_wgt(wgrd%time%val, time_now, wgrd%ind1, wgrd%ind2, wgrd%wgt1, wgrd%wgt2)
+   end if
+    do iy = 1,agrd%ny_atm
+       do ix = 1,agrd%nx_atm
+          tmp1=set_data(wgrd%ind1,wgrd%ind2,wgrd%wgt1,wgrd%wgt2,wgrd%data%val(ix,iy,:))
+          wgrd%data_now%val(ix,iy)=tmp1
+       end do
+    end do
+  end subroutine get_data_TLL_atm
+  subroutine get_data_TLL_p(time_now,start_yymmdd,start_hhmmss,ogrd,wgrd)
+    implicit none
+    real(idx),intent(in) :: time_now
+    integer, intent(in) :: start_yymmdd, start_hhmmss
+    type(ocn_dta),intent(in) :: ogrd
+    type(TLL_dta),intent(inout) :: wgrd
+    real(idx) :: time_int,time_cyc_now
+    real(idx) :: tmp1
+    integer :: ix,iy
+   if (wgrd%Lcycle == 'T') then
+      call get_time_cyc_now(time_now, start_yymmdd, start_hhmmss, time_cyc_now)
+      call time_wgt_cyclic(wgrd%time_cyc%val, time_cyc_now, wgrd%Tcycle, &
+                           wgrd%ind1, wgrd%ind2, wgrd%wgt1, wgrd%wgt2)
+   else
+      call time_wgt(wgrd%time%val, time_now, wgrd%ind1, wgrd%ind2, wgrd%wgt1, wgrd%wgt2)
+   end if
+    do iy = 0,ogrd%ny_p+1
+       do ix = 0,ogrd%nx_p+1
+          tmp1=set_data(wgrd%ind1,wgrd%ind2,wgrd%wgt1,wgrd%wgt2,wgrd%data%val(ix,iy,:))
+          wgrd%data_now%val(ix,iy)=tmp1
+       end do
+    end do
+  end subroutine get_data_TLL_p
+  subroutine get_data_TLL_u(time_now,start_yymmdd,start_hhmmss,ogrd,wgrd)
+    implicit none
+    real(idx),intent(in) :: time_now
+    integer, intent(in) :: start_yymmdd, start_hhmmss
+    type(ocn_dta),intent(in) :: ogrd
+    type(TLL_dta),intent(inout) :: wgrd
+    real(idx) :: time_int,time_cyc_now
+    real(idx) :: tmp1
+    integer :: ix,iy
+   if (wgrd%Lcycle == 'T') then
+      call get_time_cyc_now(time_now, start_yymmdd, start_hhmmss, time_cyc_now)
+      call time_wgt_cyclic(wgrd%time_cyc%val, time_cyc_now, wgrd%Tcycle, &
+                           wgrd%ind1, wgrd%ind2, wgrd%wgt1, wgrd%wgt2)
+   else
+      call time_wgt(wgrd%time%val, time_now, wgrd%ind1, wgrd%ind2, wgrd%wgt1, wgrd%wgt2)
+   end if
+    do iy = 0,ogrd%ny_p+1
+       do ix = 1,ogrd%nx_p+1
+          tmp1=set_data(wgrd%ind1,wgrd%ind2,wgrd%wgt1,wgrd%wgt2,wgrd%data%val(ix,iy,:))
+          wgrd%data_now%val(ix,iy)=tmp1
+       end do
+    end do
+  end subroutine get_data_TLL_u
+  subroutine get_data_TLL_v(time_now,start_yymmdd,start_hhmmss,ogrd,wgrd)
+    implicit none
+    real(idx),intent(in) :: time_now
+    integer, intent(in) :: start_yymmdd, start_hhmmss
+    type(ocn_dta),intent(in) :: ogrd
+    type(TLL_dta),intent(inout) :: wgrd
+    real(idx) :: time_int,time_cyc_now
+    real(idx) :: tmp1
+    integer :: ix,iy
+   if (wgrd%Lcycle == 'T') then
+      call get_time_cyc_now(time_now, start_yymmdd, start_hhmmss, time_cyc_now)
+      call time_wgt_cyclic(wgrd%time_cyc%val, time_cyc_now, wgrd%Tcycle, &
+                           wgrd%ind1, wgrd%ind2, wgrd%wgt1, wgrd%wgt2)
+   else
+      call time_wgt(wgrd%time%val, time_now, wgrd%ind1, wgrd%ind2, wgrd%wgt1, wgrd%wgt2)
+   end if
+    do iy = 1,ogrd%ny_p+1
+       do ix = 0,ogrd%nx_p+1
+          tmp1=set_data(wgrd%ind1,wgrd%ind2,wgrd%wgt1,wgrd%wgt2,wgrd%data%val(ix,iy,:))
+          wgrd%data_now%val(ix,iy)=tmp1
+       end do
+    end do
+  end subroutine get_data_TLL_v  
   subroutine read_coupler(fname,ogrd,agrd,sgrd)
     implicit none
     character(len=maxlen),intent(in) :: fname
@@ -283,89 +467,5 @@ contains
     deallocate(data_2d)
     deallocate(data_3d)
   end subroutine read_coupler
-  subroutine get_data_TLL_atm(time_now,agrd,wgrd)
-    implicit none
-    real(idx),intent(in) :: time_now
-    type(atm_dta),intent(in) :: agrd
-    type(TLL_dta),intent(inout) :: wgrd
-    real(idx) :: time_int
-    real(idx) :: tmp1
-    integer :: ix,iy
-    if (wgrd%Lcycle .eq. "T") then
-       time_int=time_now-int(time_now/(wgrd%Tcycle))*wgrd%Tcycle
-    else
-       time_int=time_now
-    end if
-    call time_wgt(wgrd%time%val,time_int,wgrd%ind1,wgrd%ind2,wgrd%wgt1,wgrd%wgt2)
-    do iy = 1,agrd%ny_atm
-       do ix = 1,agrd%nx_atm
-          tmp1=set_data(wgrd%ind1,wgrd%ind2,wgrd%wgt1,wgrd%wgt2,wgrd%data%val(ix,iy,:))
-          wgrd%data_now%val(ix,iy)=tmp1
-       end do
-    end do
-  end subroutine get_data_TLL_atm
-  subroutine get_data_TLL_p(time_now,ogrd,wgrd)
-    implicit none
-    real(idx),intent(in) :: time_now
-    type(ocn_dta),intent(in) :: ogrd
-    type(TLL_dta),intent(inout) :: wgrd
-    real(idx) :: time_int
-    real(idx) :: tmp1
-    integer :: ix,iy
-    if (wgrd%Lcycle .eq. "T") then
-       time_int=time_now-int(time_now/(wgrd%Tcycle))*wgrd%Tcycle
-    else
-       time_int=time_now
-    end if
-    call time_wgt(wgrd%time%val,time_int,wgrd%ind1,wgrd%ind2,wgrd%wgt1,wgrd%wgt2)
-    do iy = 0,ogrd%ny_p+1
-       do ix = 0,ogrd%nx_p+1
-          tmp1=set_data(wgrd%ind1,wgrd%ind2,wgrd%wgt1,wgrd%wgt2,wgrd%data%val(ix,iy,:))
-          wgrd%data_now%val(ix,iy)=tmp1
-       end do
-    end do
-  end subroutine get_data_TLL_p
-  subroutine get_data_TLL_u(time_now,ogrd,wgrd)
-    implicit none
-    real(idx),intent(in) :: time_now
-    type(ocn_dta),intent(in) :: ogrd
-    type(TLL_dta),intent(inout) :: wgrd
-    real(idx) :: time_int
-    real(idx) :: tmp1
-    integer :: ix,iy
-    if (wgrd%Lcycle .eq. "T") then
-       time_int=time_now-int(time_now/(wgrd%Tcycle))*wgrd%Tcycle
-    else
-       time_int=time_now
-    end if
-    call time_wgt(wgrd%time%val,time_int,wgrd%ind1,wgrd%ind2,wgrd%wgt1,wgrd%wgt2)
-    do iy = 0,ogrd%ny_p+1
-       do ix = 1,ogrd%nx_p+1
-          tmp1=set_data(wgrd%ind1,wgrd%ind2,wgrd%wgt1,wgrd%wgt2,wgrd%data%val(ix,iy,:))
-          wgrd%data_now%val(ix,iy)=tmp1
-       end do
-    end do
-  end subroutine get_data_TLL_u
-  subroutine get_data_TLL_v(time_now,ogrd,wgrd)
-    implicit none
-    real(idx),intent(in) :: time_now
-    type(ocn_dta),intent(in) :: ogrd
-    type(TLL_dta),intent(inout) :: wgrd
-    real(idx) :: time_int
-    real(idx) :: tmp1
-    integer :: ix,iy
-    if (wgrd%Lcycle .eq. "T") then
-       time_int=time_now-int(time_now/(wgrd%Tcycle))*wgrd%Tcycle
-    else
-       time_int=time_now
-    end if
-    call time_wgt(wgrd%time%val,time_int,wgrd%ind1,wgrd%ind2,wgrd%wgt1,wgrd%wgt2)
-    do iy = 1,ogrd%ny_p+1
-       do ix = 0,ogrd%nx_p+1
-          tmp1=set_data(wgrd%ind1,wgrd%ind2,wgrd%wgt1,wgrd%wgt2,wgrd%data%val(ix,iy,:))
-          wgrd%data_now%val(ix,iy)=tmp1
-       end do
-    end do
-  end subroutine get_data_TLL_v  
 end module mod_io_master
 
