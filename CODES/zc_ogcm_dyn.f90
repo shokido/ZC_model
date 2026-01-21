@@ -69,7 +69,9 @@ program zc_ogcm_dyn
   ! Time setting
   call calendar_cal_length_ymdhms(start_yymmdd,start_hhmmss,end_yymmdd,end_hhmmss,1,tmp1)
   total_time=int(tmp1);ntime=int(tmp1/(dt*sec_to_day))
-
+  write(*,*) "Start=",start_yymmdd,"End=",end_yymmdd
+  write(*,*) "dt=",dt
+  write(*,*) "Number of step=",ntime
   ! Read ocean grid
   call read_ocn_dyn_grd(fname_grd_ocn,ogrd)
   ! Set masking
