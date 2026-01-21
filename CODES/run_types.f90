@@ -58,7 +58,6 @@ module run_types
      type(vector_2d) :: Te_ocn_diag
      type(vector_2d) :: Tsub_ocn_diag
   end type ocn_dta
-
   type :: ocn_set
      character(len=maxlen) :: wbc_flag_p="Clo" ! "Clo" or "Gra"
      character(len=maxlen) :: ebc_flag_p="Clo"
