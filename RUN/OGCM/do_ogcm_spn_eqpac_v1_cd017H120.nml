@@ -9,10 +9,10 @@ end_hhmmss=0
 fname_grd_ocn="../../INPUT/OCN/grid_eqpac_v1.nc"
 flag_ini_ocn="F"
 fname_ini_ocn=""
-fname_avg_ocn="../../OUTPUTS/OGCM/avg_spinup_clm_bulk_H120_cd_1.7_1_20.nc"
+fname_avg_ocn="../../OUTPUTS/OGCM/avg_spinup_clm_eqpac_v1_bulk_H120_cd_1.7_1_20.nc"
 out_avg_flag=100
 out_avg_int=1
-fname_rst_ocn="../../OUTPUTS/OGCM/rst_spinup_clm_bulk_H120_cd_1.7_1_20.nc"
+fname_rst_ocn="../../OUTPUTS/OGCM/rst_spinup_clm_eqpac_v1_bulk_H120_cd_1.7_1_20.nc"
 /
 &param_ocn
 oset%wbc_flag_p="Clo"
