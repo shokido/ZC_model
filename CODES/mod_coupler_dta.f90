@@ -214,7 +214,6 @@ contains
        end do
     end do
   end subroutine exchange_AtoO
-
   subroutine exchange_OtoA(cinfo,ogrd,agrd)
     ! Import atmospheric information onto ocean grid
     implicit none
@@ -241,74 +240,6 @@ contains
        end do
     end do
   end subroutine exchange_OtoA
-
-  subroutine exchange_getwind(cinfo,ogrd,agrd,ocn_taux_dta,ocn_tauy_dta)
-    ! Import atmospheric information onto ocean grid
-    implicit none
-    type(couple_dta),intent(in) :: cinfo
-    type(ocn_dta),intent(inout) :: ogrd
-    type(atm_dta),intent(inout) :: agrd
-    type(TLL_dta),intent(inout) :: ocn_taux_dta,ocn_tauy_dta
-    integer :: nx_o,ny_o
-    integer :: ix,iy
-    real(idx) :: sst_ave,nwgt
-    nx_o=ogrd%nx_p
-    ny_o=ogrd%ny_p
-    sst_ave=0.0_idx
-    nwgt=0.0_idx
-    do iy=0,ny_o+1
-       do ix=0,nx_o+1
-          if (ogrd%lon_p%val(ix).ge. 210 .and. ogrd%lon_p%val(ix) .le. 270 .and. &
-               & ogrd%lat_p%val(iy).ge. -5.0 .and. ogrd%lat_p%val(iy).le. 5.0) then
-             nwgt=nwgt+ogrd%mask_p%val(ix,iy)
-             sst_ave=sst_ave+ogrd%ssta_ocn%val(ix,iy)*ogrd%mask_p%val(ix,iy)
-          end if
-       end do
-    end do
-    sst_ave=sst_ave/nwgt
-!    write(*,*) sst_ave
-    do iy=0,ny_o+1       
-       do ix=0,nx_o+1
-          ocn_taux_dta%data_now%val(ix,iy)= 1*sst_ave *&
-               & exp(-1.0*((ogrd%lon_p%val(ix)-190.0_idx)/20.0_idx)**2)*&
-               & exp(-1.0*((ogrd%lat_p%val(iy)-0.0_idx)/10.0_idx)**2)
-          ocn_tauy_dta%data_now%val(ix,iy)=0.0_idx
-       end do
-    end do
-  end subroutine exchange_getwind
-
-  subroutine exchange_OtoA_fromstat(cinfo,ogrd,agrd,sdta)
-    ! Import atmospheric information onto ocean grid
-    implicit none
-    type(couple_dta),intent(in) :: cinfo
-    type(ocn_dta),intent(inout) :: ogrd
-    type(atm_dta),intent(inout) :: agrd
-    type(stat_dta),intent(inout) :: sdta
-    integer :: nx_o,ny_o,nx_a,ny_a
-    integer :: ix,iy
-    real(idx) :: sst_ave,nwgt
-    nx_o=ogrd%nx_p
-    ny_o=ogrd%ny_p
-    nx_a=agrd%nx_atm
-    ny_a=agrd%ny_atm
-    sst_ave=0.0_idx
-    nwgt=0.0_idx
-    ! Calculate area-averaged SST anomaly
-    do iy=0,ny_o+1
-       do ix=0,nx_o+1
-             nwgt=nwgt+sdta%mask_o%val(ix,iy)
-             sst_ave=sst_ave+ogrd%ssta_ocn%val(ix,iy)*sdta%mask_o%val(ix,iy)
-       end do
-    end do
-    sst_ave=sst_ave/nwgt
-    do iy=1,ny_a     
-       do ix=1,nx_a
-          agrd%ua_atm%val(ix,iy)=sdta%reg_taux%val(ix,iy,sdta%ind1)*sst_ave
-          agrd%va_atm%val(ix,iy)=sdta%reg_tauy%val(ix,iy,sdta%ind1)*sst_ave
-       end do
-    end do
-  end subroutine exchange_OtoA_fromstat
-
   subroutine deallocate_coupler(cinfo)
     type(couple_dta),intent(inout) :: cinfo
     deallocate(cinfo%ind_AtoO_x%val)

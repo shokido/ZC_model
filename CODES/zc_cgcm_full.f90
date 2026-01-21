@@ -283,7 +283,7 @@ program zc_cgcm_full
      call get_data_TLL_p(time_int,start_yymmdd,start_hhmmss,ogrd,ocn_wm_dta)
      call get_data_TLL_p(time_int,start_yymmdd,start_hhmmss,ogrd,ocn_hm_dta)
      call get_data_TLL_p(time_int,start_yymmdd,start_hhmmss,ogrd,ocn_Tzm_dta)
-     if (mod(itime,ntime_couple)==0) then
+     if (mod(itime,ntime_couple)==1) then
        ! Get climatological SST
         call get_data_TLL_atm(time_int,start_yymmdd,start_hhmmss,agrd,atm_sstm_dta)
         agrd%sstm_atm%val=atm_sstm_dta%data_now%val
