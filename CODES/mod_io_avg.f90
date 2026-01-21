@@ -266,7 +266,7 @@ contains
     call add_var_att(trim(fname),"mask_v","long_name","mask of v-grid")
     call add_var_att(trim(fname),"mask_v","units","")
     call add_var_att(trim(fname),"mask_v","missing_value",missing_value)
-    call writenet_wv(trim(fname),"mask_v",(/1,1/),(/ogrd%nx_p+2,ogrd%ny_p+1/),ogrd%mask_u%val(0:ogrd%nx_p+1,1:ogrd%ny_p+1))
+    call writenet_wv(trim(fname),"mask_v",(/1,1/),(/ogrd%nx_p+2,ogrd%ny_p+1/),ogrd%mask_v%val(0:ogrd%nx_p+1,1:ogrd%ny_p+1))
 
     ! Output p field
     dim_names(1)="x_p";dim_names(2)="y_p";dim_names(3)="time"
