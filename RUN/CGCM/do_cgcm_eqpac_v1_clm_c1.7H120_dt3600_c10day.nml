@@ -10,19 +10,22 @@ time_couple=864000
 fname_grd_ocn="../../INPUT/OCN/grid_eqpac_v1.nc"
 flag_ini_ocn="F"
 fname_ini_ocn=""
-fname_avg_ocn="../../OUTPUTS/CGCM/avg_cgcm_full_eqpac_ocn_ann_H120_cd1.7_dt3600_c10day.nc"
+fname_avg_ocn="../../OUTPUTS/CGCM/avg_cgcm_full_eqpac_v1_ocn_clm_H120_cd1.7_dt3600_c10day.nc"
 out_avg_flag=100
 out_avg_int=1
-fname_diag_ocn="../../OUTPUTS/CGCM/diag_cgcm_full_eqpac_ocn_ann_H120_cd1.7_dt3600_c10day.nc"
+fname_diag_ocn="../../OUTPUTS/CGCM/diag_cgcm_full_eqpac_v1_ocn_clm_H120_cd1.7_dt3600_c10day.nc"
 out_diag_flag=100
 out_diag_int=1
-fname_rst_ocn="../../OUTPUTS/CGCM/rst_cgcm_full_eqpac_ocn_ann_H120_cd1.7_dt3600_c10day.nc"
+fname_rst_ocn="../../OUTPUTS/CGCM/rst_cgcm_full_eqpac_v1_ocn_clm_H120_cd1.7_dt3600_c10day.nc"
 /
 &io_atm
 fname_grd_atm="../../INPUT/ATM/grid_256.nc"
-fname_avg_atm="../../OUTPUTS/CGCM/avg_cgcm_full_eqpac_atm_ann_H120_cd1.7_dt3600_c10day.nc"
+fname_avg_atm="../../OUTPUTS/CGCM/avg_cgcm_full_eqpac_v1_atm_clm_H120_cd1.7_dt3600_c10day.nc"
 out_avg_flag=100
 out_avg_int=1
+/
+&io_coupler
+fname_coupler="../../INPUT/COUPLER/coupler_eqpac_v1_atm_256.nc"
 /
 &param_ocn
 oset%H1=50
@@ -44,7 +47,7 @@ Lcycle_ocn_sstm="T"
 Tcycle_ocn_sstm=365
 /
 &sstm_io_ocn 
-fnames_ocn_sstm(1)="../../Forcing/OCN/basic_ann_bulk_H120_cd_1.7_1_20.nc"
+fnames_ocn_sstm(1)="../../Forcing/OCN/basic_clm_eqpac_v1_bulk_H120_cd_1.7_1_20.nc"
 /
 &tauxm_param_ocn 
 nfile_ocn_tauxm=1
@@ -54,7 +57,7 @@ Lcycle_ocn_tauxm="T"
 Tcycle_ocn_tauxm=365
 /
 &tauxm_io_ocn 
-fnames_ocn_tauxm(1)="../../Forcing/WIND/jra55do_v1.3_u10_ann_ocn_eqpac_v1.nc"
+fnames_ocn_tauxm(1)="../../Forcing/WIND/jra55do_v1.3_u10_clm_ocn_eqpac_v1.nc"
 /
 &tauym_param_ocn 
 nfile_ocn_tauym=1
@@ -64,7 +67,7 @@ Lcycle_ocn_tauym="T"
 Tcycle_ocn_tauym=365
 /
 &tauym_io_ocn 
-fnames_ocn_tauym(1)="../../Forcing/WIND/jra55do_v1.3_v10_ann_ocn_eqpac_v1.nc"
+fnames_ocn_tauym(1)="../../Forcing/WIND/jra55do_v1.3_v10_clm_ocn_eqpac_v1.nc"
 /
 &hm_param_ocn 
 nfile_ocn_hm=1
@@ -74,7 +77,7 @@ Lcycle_ocn_hm="T"
 Tcycle_ocn_hm=365
 /
 &hm_io_ocn 
-fnames_ocn_hm(1)="../../Forcing/Tzm/basic_2D_ZC87.nc"
+fnames_ocn_hm(1)="../../Forcing/Tzm/basic_2D_eqpac_v1_ZC87.nc"
 /
 &um_param_ocn 
 nfile_ocn_um=1
@@ -84,7 +87,7 @@ Lcycle_ocn_um="T"
 Tcycle_ocn_um=365
 /
 &um_io_ocn 
-fnames_ocn_um(1)="../../Forcing/OCN/basic_ann_bulk_H120_cd_1.7_1_20.nc"
+fnames_ocn_um(1)="../../Forcing/OCN/basic_clm_eqpac_v1_bulk_H120_cd_1.7_1_20.nc"
 /
 &vm_param_ocn 
 nfile_ocn_vm=1
@@ -94,7 +97,7 @@ Lcycle_ocn_vm="T"
 Tcycle_ocn_vm=365
 /
 &vm_io_ocn 
-fnames_ocn_vm(1)="../../Forcing/OCN/basic_ann_bulk_H120_cd_1.7_1_20.nc"
+fnames_ocn_vm(1)="../../Forcing/OCN/basic_clm_eqpac_v1_bulk_H120_cd_1.7_1_20.nc"
 /
 &wm_param_ocn 
 nfile_ocn_wm=1
@@ -104,7 +107,7 @@ Lcycle_ocn_wm="T"
 Tcycle_ocn_wm=365
 /
 &wm_io_ocn 
-fnames_ocn_wm(1)="../../Forcing/OCN/basic_ann_bulk_H120_cd_1.7_1_20.nc"
+fnames_ocn_wm(1)="../../Forcing/OCN/basic_clm_eqpac_v1_bulk_H120_cd_1.7_1_20.nc"
 /
 &Tzm_param_ocn 
 nfile_ocn_Tzm=1
@@ -114,7 +117,7 @@ Lcycle_ocn_Tzm="T"
 Tcycle_ocn_Tzm=365
 /
 &Tzm_io_ocn 
-fnames_ocn_Tzm(1)="../../Forcing/Tzm/basic_2D_ZC87.nc"
+fnames_ocn_Tzm(1)="../../Forcing/Tzm/basic_2D_eqpac_v1_ZC87.nc"
 /
 &sstm_param_atm 
 nfile_atm_sstm=1
@@ -124,5 +127,5 @@ Lcycle_atm_sstm="T"
 Tcycle_atm_sstm=365
 /
 &sstm_io_atm 
-fnames_atm_sstm(1)="../../Forcing/SST/ERSST_v5_atm_256_ann.nc"
+fnames_atm_sstm(1)="../../Forcing/SST/ERSST_v5_atm_256_clm.nc"
 /
