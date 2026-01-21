@@ -440,7 +440,7 @@ contains
        end do
     end do
   end subroutine get_data_TLL_v  
-  subroutine read_coupler(fname,ogrd,agrd,sgrd)
+  subroutine read_coupler_stat(fname,ogrd,agrd,sgrd)
     implicit none
     character(len=maxlen),intent(in) :: fname
     type(ocn_dta),intent(in) :: ogrd
@@ -466,6 +466,6 @@ contains
     end do
     deallocate(data_2d)
     deallocate(data_3d)
-  end subroutine read_coupler
+  end subroutine read_coupler_stat
 end module mod_io_master
 

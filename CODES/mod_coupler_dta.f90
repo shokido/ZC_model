@@ -1,4 +1,5 @@
 module mod_coupler_dta
+  use ncdf_read
   use run_types
   implicit none
 contains
@@ -61,6 +62,39 @@ contains
     deallocate(idx_i_in);deallocate(idx_j_in)
     deallocate(x_1d_in);deallocate(y_1d_in)
   end subroutine get_nearest
+  subroutine read_coupler(cinfo,ogrd,agrd,fname)
+    character(len=maxlen),intent(in) :: fname
+    type(couple_dta),intent(inout) :: cinfo
+    type(ocn_dta),intent(in) :: ogrd
+    type(atm_dta),intent(in) :: agrd
+    integer,allocatable :: i_3d(:,:,:)
+    real(idx),allocatable :: v_3d(:,:,:)
+    integer :: nx_a,ny_a,nx_o,ny_o
+    integer :: ix,iy
+    integer :: ix_t,iy_t
+    nx_o=ogrd%nx_p
+    ny_o=ogrd%ny_p
+    nx_a=agrd%nx_atm
+    ny_a=agrd%ny_atm
+    allocate(cinfo%ind_AtoO_x%val(0:nx_o+1,0:ny_o+1,4))
+    allocate(cinfo%ind_AtoO_y%val(0:nx_o+1,0:ny_o+1,4))
+    allocate(cinfo%wgt_AtoO%val(0:nx_o+1,0:ny_o+1,4))
+    allocate(cinfo%ind_OtoA_x%val(1:nx_a,1:ny_a,4))
+    allocate(cinfo%ind_OtoA_y%val(1:nx_a,1:ny_a,4))
+    allocate(cinfo%wgt_OtoA%val(1:nx_a,1:ny_a,4))
+    call get_variable(fname,"ind_AtoO_x",(/1,1,1/),(/nx_o+2,ny_o+2,4/),i_3d)
+    cinfo%ind_AtoO_x%val(0:nx_o+1,0:ny_o+1,1:4)=i_3d(1:nx_o+2,1:ny_o+2,1:4)
+    call get_variable(fname,"ind_AtoO_y",(/1,1,1/),(/nx_o+2,ny_o+2,4/),i_3d)
+    cinfo%ind_AtoO_y%val(0:nx_o+1,0:ny_o+1,1:4)=i_3d(1:nx_o+2,1:ny_o+2,1:4)
+    call get_variable(fname,"wgt_AtoO",(/1,1,1/),(/nx_o+2,ny_o+2,4/),v_3d)
+    cinfo%wgt_AtoO%val(0:nx_o+1,0:ny_o+1,1:4)=v_3d(1:nx_o+2,1:ny_o+2,1:4)
+    call get_variable(fname,"ind_OtoA_x",(/1,1,1/),(/nx_a,ny_a,4/),i_3d)
+    cinfo%ind_OtoA_x%val(1:nx_a,0:ny_a,1:4)=i_3d(1:nx_a,1:ny_a,1:4)
+    call get_variable(fname,"ind_OtoA_y",(/1,1,1/),(/nx_a,ny_a,4/),i_3d)
+    cinfo%ind_OtoA_y%val(1:nx_a,1:ny_a,1:4)=i_3d(1:nx_a,1:ny_a,1:4)
+    call get_variable(fname,"wgt_OtoA",(/1,1,1/),(/nx_a,ny_a,4/),v_3d)
+    cinfo%wgt_OtoA%val(1:nx_a,1:ny_a,1:4)=v_3d(1:nx_a,1:ny_a,1:4)
+   end subroutine read_coupler
   subroutine initialize_coupler(cinfo,ogrd,agrd)
     implicit none
     type(couple_dta),intent(inout) :: cinfo
@@ -162,6 +196,7 @@ contains
     ny_o=ogrd%ny_p
     do iy=0,ny_o+1
        do ix=0,nx_o+1
+         ! Ensure mask-p is not zero
           ix_1=cinfo%ind_AtoO_x%val(ix,iy,1);iy_1=cinfo%ind_AtoO_y%val(ix,iy,1)
           ix_2=cinfo%ind_AtoO_x%val(ix,iy,2);iy_2=cinfo%ind_AtoO_y%val(ix,iy,2)
           ix_3=cinfo%ind_AtoO_x%val(ix,iy,3);iy_3=cinfo%ind_AtoO_y%val(ix,iy,3)

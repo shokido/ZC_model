@@ -26,6 +26,7 @@ program zc_cgcm_full
   type(atm_set) :: aset
   character(len=maxlen) :: fname_grd_atm
   character(len=maxlen) :: fname_avg_atm
+  character(len=maxlen) :: fname_coupler
   integer:: iy,ix
   integer :: itime,ntime,total_time
   real(idx) :: dt,tmp1,time_int,time_couple
@@ -117,7 +118,7 @@ program zc_cgcm_full
   namelist/io_atm/fname_grd_atm
   namelist/io_atm/fname_avg_atm,out_avg_flag,out_avg_int
   namelist/param_atm/aset
-  
+  namelist/io_coupler/fname_coupler
   namelist/sstm_param_ocn/nfile_ocn_sstm,timename_ocn_sstm,varname_ocn_sstm,Lcycle_ocn_sstm,Tcycle_ocn_sstm
   namelist/sstm_io_ocn/fnames_ocn_sstm
   namelist/tauxm_param_ocn/nfile_ocn_tauxm,timename_ocn_tauxm,varname_ocn_tauxm,Lcycle_ocn_tauxm,Tcycle_ocn_tauxm
@@ -143,6 +144,7 @@ program zc_cgcm_full
   read(5,date)
   read(5,io_ocn)
   read(5,io_atm)
+  read(5,io_coupler)
   read(5,param_ocn)
   read(5,param_atm)
   ntime_couple=int(time_couple/dt)
@@ -205,10 +207,10 @@ program zc_cgcm_full
   ! Atmospheric grid
   call read_atm_grd(fname_grd_atm,agrd)
   call set_coord_atm(agrd,aset)
- 
   ! Set coupler
-  call initialize_coupler(cgrd,ogrd,agrd)
-  
+  write(*,*) trim(fname_coupler)
+!  call initialize_coupler(cgrd,ogrd,agrd)
+  call read_coupler(cgrd,ogrd,agrd,fname_coupler)
   ! Read forcing field
   call read_data_TLL_p(nfile_ocn_sstm,fnames_ocn_sstm,timename_ocn_sstm,&
        & varname_ocn_sstm,ogrd,ocn_sstm_dta,start_yymmdd,start_hhmmss)
