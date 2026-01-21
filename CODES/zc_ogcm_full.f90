@@ -182,7 +182,6 @@ program zc_ogcm_full
   call initialize_ocn_dyn(ogrd)
   call initialize_ocn_sst(ogrd)
   call initialize_ocn_visc(ogrd,oset)
-  write(*,*) start_yymmdd,start_hhmmss,end_yymmdd,end_hhmmss
   if (flag_ini_ocn == "T") then
      call read_restart_ocn_dyn(fname_ini_ocn,ogrd)
      call read_restart_ocn_sst(fname_ini_ocn,ogrd)
@@ -218,7 +217,6 @@ program zc_ogcm_full
   call read_data_TLL_p(nfile_ocn_Tzm,fnames_ocn_Tzm,timename_ocn_Tzm,&
        & varname_ocn_Tzm,ogrd,ocn_Tzm_dta,start_yymmdd,start_hhmmss)
   ocn_Tzm_dta%Lcycle=Lcycle_ocn_Tzm;ocn_Tzm_dta%Tcycle=Tcycle_ocn_Tzm
-
   ! Prepare averaged file
   call create_avg_ocn_dyn_ZC(fname_avg_ocn,ogrd,oset,&
        & start_yymmdd,start_hhmmss,end_yymmdd,end_hhmmss,dt,&
@@ -227,7 +225,6 @@ program zc_ogcm_full
 
   call create_avg_ocn_sst_ZC(fname_avg_ocn,ogrd,oset,missing_value)
   call initialize_ocn_sst_avg(ogrd)
-
   ! Prepare diagnostic file
   call create_diag_ocn_ZC(fname_diag_ocn,ogrd,&
        & start_yymmdd,start_hhmmss,end_yymmdd,end_hhmmss,dt,&
@@ -258,10 +255,11 @@ program zc_ogcm_full
      call get_data_TLL_p(time_int,start_yymmdd,start_hhmmss,ogrd,ocn_Tzm_dta)
 
      ! Set wind stress
-     ! Take anomalies
 #if defined WSTRESS_BULK
      ! Read surface wind
-      call ua_to_stress_anm(ogrd,oset,ocn_tauxm_dta,ocn_tauym_dta)
+     ogrd%ua_ocn%val=ocn_taux_dta%data_now%val
+     ogrd%va_ocn%val=ocn_tauy_dta%data_now%val
+     call ua_to_stress_anm(ogrd,oset,ocn_tauxm_dta,ocn_tauym_dta)
 #else
      ! Read surface wind stress     #
      ogrd%taux_ocn%val=ocn_taux_dta%data_now%val-ocn_tauxm_dta%data_now%val
