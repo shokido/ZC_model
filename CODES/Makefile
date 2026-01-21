@@ -11,9 +11,7 @@ FFLAGS += $(NETCDF_INCDIR)
 LDFLAGS += $(NETCDF_LIBDIR) -lnetcdf -lnetcdff
 LDFLAGS += -cpp
 LDFLAGS += -O3
-FFLAGS += -DINI
 FFLAGS += -DWSTRESS_BULK
-#FFLAGS += -CB
 FFLAGS_LEGACY+=-std=legacy -Wno-argument-mismatch
 #==========================
 # You don't have to edit the following part
