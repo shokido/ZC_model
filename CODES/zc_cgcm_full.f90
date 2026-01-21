@@ -27,6 +27,7 @@ program zc_cgcm_full
   character(len=maxlen) :: fname_grd_atm
   character(len=maxlen) :: fname_avg_atm
   character(len=maxlen) :: fname_coupler
+  character(1) :: kick_ini="T"
   integer:: iy,ix
   integer :: itime,ntime,total_time
   real(idx) :: dt,tmp1,time_int,time_couple
@@ -119,6 +120,7 @@ program zc_cgcm_full
   namelist/io_atm/fname_avg_atm,out_avg_flag,out_avg_int
   namelist/param_atm/aset
   namelist/io_coupler/fname_coupler
+  namelist/param_coupler/kick_ini
   namelist/sstm_param_ocn/nfile_ocn_sstm,timename_ocn_sstm,varname_ocn_sstm,Lcycle_ocn_sstm,Tcycle_ocn_sstm
   namelist/sstm_io_ocn/fnames_ocn_sstm
   namelist/tauxm_param_ocn/nfile_ocn_tauxm,timename_ocn_tauxm,varname_ocn_tauxm,Lcycle_ocn_tauxm,Tcycle_ocn_tauxm
@@ -147,6 +149,7 @@ program zc_cgcm_full
   read(5,io_coupler)
   read(5,param_ocn)
   read(5,param_atm)
+  read(5,param_coupler)
   ntime_couple=int(time_couple/dt)
   read(5,sstm_param_ocn)
   allocate(fnames_ocn_sstm(nfile_ocn_sstm))
@@ -303,24 +306,20 @@ end if
         ! Exchange information
         call exchange_AtoO(cgrd,ogrd,agrd)
      end if
-     ! Convert surface wind to wind stress
-#if defined INI
-     if (time_int <= 30*4) then
-        do iy=0,ogrd%ny_p+1
-           do ix=0,ogrd%nx_p+1
-               if (ogrd%lon_p%val(ix)>=145.0_idx .and. &
-               & ogrd%lon_p%val(ix)<=190.0_idx) then
-                   ogrd%ua_ocn%val(ix,iy)=2.0_idx*&
-                   & exp(-1.0_idx*((ogrd%lat_p%val(iy)-0.0)/20)**2)                    
-               end if
-!              ogrd%ua_ocn%val(ix,iy)=2*&
-!                   & exp(-1.0_idx*((ogrd%lon_p%val(ix)-167.5)/22.5)**2)*&
-!                   & exp(-1.0_idx*((ogrd%lat_p%val(iy)-0.0)/20)**2) !&
-!              ogrd%va_ocn%val(ix,iy)=0.0_idx
-           end do
-        end do
+     ! Initial perturbation
+     if (kick_ini == "T") then
+          if (time_int <= 30*4) then
+          do iy=0,ogrd%ny_p+1
+               do ix=0,ogrd%nx_p+1
+                    if (ogrd%lon_p%val(ix)>=145.0_idx .and. &
+                    & ogrd%lon_p%val(ix)<=190.0_idx) then
+                    ogrd%ua_ocn%val(ix,iy)=2.0_idx*&
+                    & exp(-1.0_idx*((ogrd%lat_p%val(iy)-0.0)/20)**2)                    
+                    end if
+               end do
+          end do
+          end if
      end if
-#endif
      call ua_to_stress_anm(ogrd,oset,ocn_tauxm_dta,ocn_tauym_dta)
      ! Calculate Ekman current
      call solve_ekman_ocn(ogrd,oset)
