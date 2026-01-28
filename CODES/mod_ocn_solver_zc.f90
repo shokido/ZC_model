@@ -955,28 +955,7 @@ contains
           wtotal=(mwdata%data_now%val(ix,iy)+ogrd%w_ocn_1%val(ix,iy))*&
                &ogrd%mask_p%val(ix,iy)
           wbar=mwdata%data_now%val(ix,iy)*ogrd%mask_p%val(ix,iy)
-          if (wbar >0) then
-            F1=wbar
-          else
-            F1=0.0_idx
-          end if  
-          if (wbar <=0) then
-            if (wtotal <=0) then
-               F2=0.0
-            else
-               F2=wtotal
-            end if
-         else
-            if (wtotal<=0) then
-               F2=-1.0*wbar
-            else
-               F2=ogrd%w_ocn_1%val(ix,iy)*ogrd%mask_p%val(ix,iy)
-            end if
-         end if
-         dTbdz=mTzdata%data_now%val(ix,iy)*ogrd%mask_p%val(ix,iy)
-         waTa= -1.0_idx*F2*(ogrd%ssta_ocn%val(ix,iy)-Te)/H1
-         waTm= -1.0_idx*F2*dTbdz
-         wmTa= -1.0_idx*F1*(ogrd%ssta_ocn%val(ix,iy)-Te)/H1
+          dTbdz=mTzdata%data_now%val(ix,iy)*ogrd%mask_p%val(ix,iy)
          if (wtotal > 0) then
            mwtotal=wtotal
          else
@@ -994,18 +973,18 @@ contains
          vadv=wmTa+waTm+waTa           
          rhs_sst=znadv+mnadv+vadv+qh                 
           ogrd%ssta_ocn_next%val(ix,iy)=ogrd%ssta_ocn%val(ix,iy)+&
-               & dt*ogrd%mask_p%val(ix,iy)*rhs_sst
-          ogrd%dTdt_ocn_diag%val(ix,iy)=ogrd%dTdt_ocn_diag%val(ix,iy)+dt*ogrd%mask_p%val(ix,iy)*rhs_sst
-          ogrd%uaTm_ocn_diag%val(ix,iy)=ogrd%uaTm_ocn_diag%val(ix,iy)+dt*ogrd%mask_p%val(ix,iy)*uaTm
-          ogrd%umTa_ocn_diag%val(ix,iy)=ogrd%umTa_ocn_diag%val(ix,iy)+dt*ogrd%mask_p%val(ix,iy)*umTa
-          ogrd%uaTa_ocn_diag%val(ix,iy)=ogrd%uaTa_ocn_diag%val(ix,iy)+dt*ogrd%mask_p%val(ix,iy)*uaTa
-          ogrd%vaTm_ocn_diag%val(ix,iy)=ogrd%vaTm_ocn_diag%val(ix,iy)+dt*ogrd%mask_p%val(ix,iy)*vaTm
-          ogrd%vmTa_ocn_diag%val(ix,iy)=ogrd%vmTa_ocn_diag%val(ix,iy)+dt*ogrd%mask_p%val(ix,iy)*vmTa
-          ogrd%vaTa_ocn_diag%val(ix,iy)=ogrd%vaTa_ocn_diag%val(ix,iy)+dt*ogrd%mask_p%val(ix,iy)*vaTa
-          ogrd%waTm_ocn_diag%val(ix,iy)=ogrd%waTm_ocn_diag%val(ix,iy)+dt*ogrd%mask_p%val(ix,iy)*waTm
-          ogrd%wmTa_ocn_diag%val(ix,iy)=ogrd%wmTa_ocn_diag%val(ix,iy)+dt*ogrd%mask_p%val(ix,iy)*wmTa
-          ogrd%waTa_ocn_diag%val(ix,iy)=ogrd%waTa_ocn_diag%val(ix,iy)+dt*ogrd%mask_p%val(ix,iy)*waTa
-          ogrd%qh_ocn_diag%val(ix,iy)=ogrd%qh_ocn_diag%val(ix,iy)+dt*ogrd%mask_p%val(ix,iy)*qh          
+               & dt*ogrd%mask_sst%val(ix,iy)*rhs_sst
+          ogrd%dTdt_ocn_diag%val(ix,iy)=ogrd%dTdt_ocn_diag%val(ix,iy)+ogrd%mask_sst%val(ix,iy)*rhs_sst
+          ogrd%uaTm_ocn_diag%val(ix,iy)=ogrd%uaTm_ocn_diag%val(ix,iy)+ogrd%mask_sst%val(ix,iy)*uaTm
+          ogrd%umTa_ocn_diag%val(ix,iy)=ogrd%umTa_ocn_diag%val(ix,iy)+ogrd%mask_sst%val(ix,iy)*umTa
+          ogrd%uaTa_ocn_diag%val(ix,iy)=ogrd%uaTa_ocn_diag%val(ix,iy)+ogrd%mask_sst%val(ix,iy)*uaTa
+          ogrd%vaTm_ocn_diag%val(ix,iy)=ogrd%vaTm_ocn_diag%val(ix,iy)+ogrd%mask_sst%val(ix,iy)*vaTm
+          ogrd%vmTa_ocn_diag%val(ix,iy)=ogrd%vmTa_ocn_diag%val(ix,iy)+ogrd%mask_sst%val(ix,iy)*vmTa
+          ogrd%vaTa_ocn_diag%val(ix,iy)=ogrd%vaTa_ocn_diag%val(ix,iy)+ogrd%mask_sst%val(ix,iy)*vaTa
+          ogrd%waTm_ocn_diag%val(ix,iy)=ogrd%waTm_ocn_diag%val(ix,iy)+ogrd%mask_sst%val(ix,iy)*waTm
+          ogrd%wmTa_ocn_diag%val(ix,iy)=ogrd%wmTa_ocn_diag%val(ix,iy)+ogrd%mask_sst%val(ix,iy)*wmTa
+          ogrd%waTa_ocn_diag%val(ix,iy)=ogrd%waTa_ocn_diag%val(ix,iy)+ogrd%mask_sst%val(ix,iy)*waTa
+          ogrd%qh_ocn_diag%val(ix,iy)=ogrd%qh_ocn_diag%val(ix,iy)+ogrd%mask_sst%val(ix,iy)*qh          
        end do
     end do
    call set_bc_p(ogrd%nx_p,ogrd%ny_p,&
