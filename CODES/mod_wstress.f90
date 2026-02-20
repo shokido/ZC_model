@@ -49,11 +49,12 @@ contains
         end do
      end do
    end subroutine ua_to_stress_anm
-  subroutine add_WWB(ogrd,oset,dt,model_time,t0_wwb,wt0)
+   subroutine ua_to_stress_anm_WWB(ogrd,oset,dt,model_time,t0_wwb,wt0,uwmgrd,vwmgrd)
     implicit none
     type(ocn_dta),intent(inout) :: ogrd
     real(idx),intent(in) :: dt
     type(ocn_set),intent(in) :: oset
+    type(TLL_dta),intent(inout) :: uwmgrd,vwmgrd
     real(idx):: ua,va,uw,vw
     real(idx):: ua_mean,va_mean
     real(idx) :: ut,vt
@@ -72,7 +73,7 @@ contains
       end do
    end do
    nino34=nino34/wgt_nino34
-   lambda_perday=(oset%G0_wwb+oset%G1_wwb*nino34)
+   lambda_perday = max(0.0_idx, oset%G0_wwb+oset%G1_wwb*nino34)
    thres_WWB=1-exp(-1.0*lambda_perday*dt*sec_to_day)
    prob_wwb(1)=1.0_idx
    call random_number(prob_wwb(1))  
@@ -86,7 +87,17 @@ contains
          & wt0*oset%us0_wwb*exp(-1.0*((model_time-t0_wwb-oset%dur_wwb)**2)/(oset%dur_wwb)**2) *&
          & exp(-1.0* ((ogrd%lon_p%val(ix)-oset%x0_wwb)**2)/(oset%widx_wwb**2)) *&
          & exp(-1.0* ((ogrd%lat_p%val(iy)-oset%y0_wwb)**2)/(oset%widy_wwb**2))
+           va=ogrd%va_ocn%val(ix,iy)
+           ua_mean=uwmgrd%data_now%val(ix,iy)
+           va_mean=vwmgrd%data_now%val(ix,iy)
+           ut=(ua+ua_mean);vt=(va+va_mean)
+           uw=rhoa*oset%cd_bulk*(sqrt(ut*ut+vt*vt)*ut-&
+                & sqrt(ua_mean*ua_mean+va_mean*va_mean)*ua_mean)
+           vw=rhoa*oset%cd_bulk*(sqrt(ut*ut+vt*vt)*vt-&
+                & sqrt(ua_mean*ua_mean+va_mean*va_mean)*va_mean)
+           ogrd%taux_ocn%val(ix,iy)=uw
+           ogrd%tauy_ocn%val(ix,iy)=vw
         end do
      end do
-   end subroutine add_WWB
+   end subroutine ua_to_stress_anm_WWB
 end module mod_wstress

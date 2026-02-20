@@ -324,9 +324,10 @@ program zc_cgcm_full
           end if
      end if
      if (oset%kick_WWB=="T") then
-          call add_WWB(ogrd,oset,dt,time_int,t0_wwb,wt0_wwb)
+          call ua_to_stress_anm_WWB(ogrd,oset,dt,time_int,t0_wwb,wt0_wwb,ocn_tauxm_dta,ocn_tauym_dta)
+     else
+          call ua_to_stress_anm(ogrd,oset,ocn_tauxm_dta,ocn_tauym_dta)
      end if
-     call ua_to_stress_anm(ogrd,oset,ocn_tauxm_dta,ocn_tauym_dta)
      ! Calculate Ekman current
      call solve_ekman_ocn(ogrd,oset)
      ! Calculate geostrophic current
