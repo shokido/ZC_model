@@ -440,6 +440,18 @@ contains
        end do
     end do
   end subroutine get_data_TLL_v  
+  subroutine read_mask_WWB(fname,ogrd)
+    implicit none
+    character(len=maxlen),intent(in) :: fname
+    type(ocn_dta),intent(inout) :: ogrd
+    integer :: nx_o,ny_o
+    real(idx),allocatable :: data_2d(:,:)
+    nx_o=ogrd%nx_p;ny_o=ogrd%ny_p
+    allocate(ogrd%mask_wwb%val(0:nx_o+1,0:ny_o+1))
+    call get_variable(fname,"mask_wwb",(/1,1,1/),(/nx_o+2,ny_o+2/),data_2d)
+    ogrd%mask_wwb%val(0:nx_o+1,0:ny_o+1)=data_2d(1:nx_o+2,1:ny_o+2)
+    deallocate(data_2d)
+  end subroutine read_mask_WWB
   subroutine read_coupler_stat(fname,ogrd,agrd,sgrd)
     implicit none
     character(len=maxlen),intent(in) :: fname

@@ -28,6 +28,7 @@ module run_types
      type(vector_2d) :: f,mask_p,mask_u,mask_v
      type(vector_2d) :: mask_phi_u,mask_phi_v
      type(vector_2d) :: mask_sst
+     type(vector_2d) :: mask_wwb
      ! Velocity array
      type(vector_2d) :: u_sw,v_sw,h_sw
      type(vector_2d) :: u_sw_past,v_sw_past,h_sw_past
@@ -85,7 +86,12 @@ module run_types
      real(idx) :: Tsub_b1=1.0_idx/(80.0_idx)
      real(idx) :: Tsub_b2=1.0_idx/(33.0_idx)
      real(idx) :: Tsub_gamma=0.75_idx
-  end type ocn_set
+      ! WWB parameter 
+     character(1) :: kick_WWB="F"
+     real(idx) :: G0_wwb=0.09_idx,G1_wwb=0.0_idx,dur_wwb=20.0_idx
+     real(idx) :: us0_wwb=6.5_idx,widx_wwb=20.0_idx,widy_wwb=6.0_idx
+     real(idx) :: x0_wwb=160.0_idx,y0_wwb=0.0_idx
+     end type ocn_set
   type :: atm_dta
      integer :: nx_atm,ny_atm
      type(vector_1d) :: lon_atm, lat_atm

@@ -108,7 +108,7 @@ program zc_cgcm_full
   character(1) :: Lcycle_atm_vam
   real(idx) :: Tcycle_atm_vam
   integer :: tmp_yymmdd,tmp_hhmmss
-
+  real(idx) :: wt0_wwb,t0_wwb
   namelist/date/dt,start_yymmdd,start_hhmmss,end_yymmdd,end_hhmmss,time_couple
   namelist/io_ocn/fname_grd_ocn
   namelist/io_ocn/flag_ini_ocn,fname_ini_ocn
@@ -195,6 +195,9 @@ program zc_cgcm_full
   write(*,*) "Number of step=",ntime
   ! Read ocean grid
   call read_ocn_dyn_grd(fname_grd_ocn,ogrd)
+  if (oset%kick_WWB=="T") then
+     call read_mask_WWB(fname_grd_ocn,ogrd)
+  end if
   ! Set masking
   call set_mask_ocn(ogrd,oset%slip_ind)
   call read_ocn_sst_grd(fname_grd_ocn,ogrd)
@@ -296,13 +299,13 @@ program zc_cgcm_full
         end if
         ! Send SSTA to ATM.grid
         call exchange_OtoA(cgrd,ogrd,agrd)
-if (aset%heating_type=="ZC87") then
-        call return_uvp_fromSST_ZC87(agrd,aset)
-else if (aset%heating_type=="ZC87_conv") then
-        call return_uvp_fromSST_ZC87_conv(agrd,aset,atm_uam_dta,atm_vam_dta)
-else if (aset%heating_type=="GJ22") then
-      call return_uvp_fromSST_GJ22(agrd,aset)
-end if
+        if (aset%heating_type=="ZC87") then
+          call return_uvp_fromSST_ZC87(agrd,aset)
+        else if (aset%heating_type=="ZC87_conv") then
+          call return_uvp_fromSST_ZC87_conv(agrd,aset,atm_uam_dta,atm_vam_dta)
+        else if (aset%heating_type=="GJ22") then
+          call return_uvp_fromSST_GJ22(agrd,aset)
+        end if
         ! Exchange information
         call exchange_AtoO(cgrd,ogrd,agrd)
      end if
@@ -320,12 +323,14 @@ end if
           end do
           end if
      end if
+     if (oset%kick_WWB=="T") then
+          call add_WWB(ogrd,oset,dt,time_int,t0_wwb,wt0_wwb)
+     end if
      call ua_to_stress_anm(ogrd,oset,ocn_tauxm_dta,ocn_tauym_dta)
      ! Calculate Ekman current
      call solve_ekman_ocn(ogrd,oset)
      ! Calculate geostrophic current
      call solve_rg_vgeo_ocn(ogrd,oset,dt)
-!     call solve_rg_vgeo_ocn3(ogrd,oset,dt)
      ! Calculate total current
      call solve_totalcurrent_ocn(ogrd,oset)
      call solve_sst_ocn_ZC(ogrd,oset,ocn_um_dta,ocn_vm_dta,ocn_wm_dta,&
