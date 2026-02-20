@@ -62,7 +62,7 @@ contains
    real(idx),intent(in) :: model_time
    real(idx),intent(inout) :: t0_wwb,wt0 ! in day
    real(idx) :: prob_wwb(1)
-   real(idx) :: thres_WWB,nino34,wgt_nino34
+   real(idx) :: thres_WWB,nino34,wgt_nino34,lambda_perday
    nino34=0.0_idx
    wgt_nino34=0.0_idx
    do ix = 0,ogrd%nx_p+1
@@ -72,8 +72,8 @@ contains
       end do
    end do
    nino34=nino34/wgt_nino34
-   lambda=oset%G0_wwb+oset%G1_wwb*nino34
-   thres_WWB=1-exp(-1.0*lamda*dt)
+   lambda_perday=(oset%G0_wwb+oset%G1_wwb*nino34)
+   thres_WWB=1-exp(-1.0*lambda_perday*dt*sec_to_day)
    prob_wwb(1)=1.0_idx
    call random_number(prob_wwb(1))  
    if (prob_wwb(1) < thres_WWB) then
