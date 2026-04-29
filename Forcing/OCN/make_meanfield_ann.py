@@ -3,12 +3,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 from stat_ncl import *
 import datetime as dt
+grdname="eqpac_30"
 dir_io="../..//OUTPUTS/OGCM/"
-fflag="bulk_H120_cd_1.7_1_20"
+fflag=grdname+"_H120_cd_1.3_1_20"
 fname_base=dir_io+"avg_spinup_clm_"+fflag+".nc"
-fname_base_sst="../SST/ERSST_v5_eqpac_v1_clm.nc"
-fname_out="basic_ann_"+fflag+".nc"
+fname_base_sst="../SST/ERSST_v5_"+grdname+"_clm.nc"
 
+
+fname_out="basic_ann_"+fflag+".nc"
 nc_base=ncdf.Dataset(fname_base,"r")
 lon=nc_base.variables["lon_p"][:]
 lat=nc_base.variables["lat_p"][:]

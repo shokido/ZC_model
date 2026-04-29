@@ -3,11 +3,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from stat_ncl import *
 import datetime as dt
+grdname="eqpac_30"
 dir_io="../..//OUTPUTS/OGCM/"
-fflag="bulk_H120_cd_1.7_1_20"
+fflag=grdname+"_H120_cd_1.3_1_20"
 
 fname_base=dir_io+"avg_spinup_clm_"+fflag+".nc"
-fname_base_sst="../SST/ERSST_v5_eqpac_v1_clm.nc"
+fname_base_sst="../SST/ERSST_v5_"+grdname+"_clm.nc"
 fname_out="basic_clm_"+fflag+".nc"
 
 nc_base=ncdf.Dataset(fname_base,"r")
@@ -46,10 +47,6 @@ u_base_ann=clmmon(u)
 v_base_ann=clmmon(v)
 w_base_ann=clmmon(w)
 h_base_ann=clmmon(h)
-# ilon=np.where((lon>=120) & (lon<=280))[0]
-# ilat=np.where(np.abs(lat)<=10)[0]
-# view=h_base_ann[:,ilat,:]
-# print(np.nanmean(view[:,:,ilon]))
 nc_out=ncdf.Dataset(fname_out,"w")
 ndim_p=np.shape(x_p)
 nc_out.createDimension("x_p",ndim_p[1])
