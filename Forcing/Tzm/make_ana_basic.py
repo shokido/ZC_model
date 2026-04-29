@@ -2,8 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import netCDF4 as ncdf
 import datetime as dt
-fname_grid="../../INPUT/OCN/grid_eqpac_v1.nc"
-fname_out="basic_2D_ZC87.nc"
+grdname="eqpac_30"
+fname_grid="../../INPUT/OCN/grid_"+grdname+".nc"
+fname_out="basic_2D_"+grdname+"_ZC87.nc"
 
 nc_grid=ncdf.Dataset(fname_grid,"r")
 x_p=nc_grid.variables["x_p_2d"][:]
