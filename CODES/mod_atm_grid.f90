@@ -88,6 +88,19 @@ contains
       end do
    end if
   end subroutine set_coord_atm
+  subroutine clean_atm(agrd)
+    implicit none
+    type(atm_dta),intent(inout) :: agrd
+    integer :: ix,iy
+    agrd%qa_atm%val(1:agrd%nx_atm,1:agrd%ny_atm)=0.0_idx
+    agrd%pa_atm%val(1:agrd%nx_atm,1:agrd%ny_atm)=0.0_idx
+    agrd%ua_atm%val(1:agrd%nx_atm,1:agrd%ny_atm)=0.0_idx
+    agrd%va_atm%val(1:agrd%nx_atm,1:agrd%ny_atm)=0.0_idx
+    agrd%qa_atm_avg%val(1:agrd%nx_atm,1:agrd%ny_atm)=0.0_idx
+    agrd%ssta_atm%val(1:agrd%nx_atm,1:agrd%ny_atm)=0.0_idx
+  end subroutine clean_atm
+
+
   subroutine deallocate_atm(grd)
     implicit none
     type(atm_dta),intent(inout) :: grd

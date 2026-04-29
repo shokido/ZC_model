@@ -81,38 +81,81 @@ contains
     allocate(grd%mask_sst%val(0:grd%nx_p+1,0:grd%ny_p+1))
     grd%mask_sst%val(0:grd%nx_p+1,0:grd%ny_p+1)=v_2d(1:grd%nx_p+2,1:grd%ny_p+2)
   end subroutine read_ocn_sst_grd
+  subroutine allocate_ocn_dyn(grd)
+    implicit none
+    type(ocn_dta),intent(inout) :: grd
+    integer :: nx_p,ny_p
+    nx_p=grd%nx_p;ny_p=grd%ny_p
+    allocate(grd%h_sw%val(0:nx_p+1,0:ny_p+1))
+    allocate(grd%u_sw%val(1:nx_p+1,0:ny_p+1))
+    allocate(grd%v_sw%val(0:nx_p+1,1:ny_p+1))
+    allocate(grd%h_sw_past%val(0:nx_p+1,0:ny_p+1))
+    allocate(grd%u_sw_past%val(1:nx_p+1,0:ny_p+1))
+    allocate(grd%v_sw_past%val(0:nx_p+1,1:ny_p+1))
+    allocate(grd%h_sw_next%val(0:nx_p+1,0:ny_p+1))
+    allocate(grd%u_sw_next%val(1:nx_p+1,0:ny_p+1))
+    allocate(grd%v_sw_next%val(0:nx_p+1,1:ny_p+1))
+    allocate(grd%u_ek%val(1:nx_p+1,0:ny_p+1))
+    allocate(grd%v_ek%val(0:nx_p+1,1:ny_p+1))
+    allocate(grd%w_ek%val(0:nx_p+1,0:ny_p+1))
+    allocate(grd%u_ocn_1%val(1:nx_p+1,0:ny_p+1))
+    allocate(grd%v_ocn_1%val(0:nx_p+1,1:ny_p+1))
+    allocate(grd%w_ocn_1%val(0:nx_p+1,0:ny_p+1))
+    allocate(grd%ua_ocn%val(0:nx_p+1,0:ny_p+1))
+    allocate(grd%va_ocn%val(0:nx_p+1,0:ny_p+1))
+    allocate(grd%taux_ocn%val(0:nx_p+1,0:ny_p+1))
+    allocate(grd%tauy_ocn%val(0:nx_p+1,0:ny_p+1))
+  end subroutine allocate_ocn_dyn
+  subroutine clean_ocn_dyn(grd)
+    implicit none
+    type(ocn_dta),intent(inout) :: grd
+    integer :: nx_p,ny_p
+    nx_p=grd%nx_p;ny_p=grd%ny_p
+    grd%h_sw%val(0:nx_p+1,0:ny_p+1)=0.0_idx
+    grd%u_sw%val(1:nx_p+1,0:ny_p+1)=0.0_idx
+    grd%v_sw%val(0:nx_p+1,1:ny_p+1)=0.0_idx
+    grd%h_sw_past%val(0:nx_p+1,0:ny_p+1)=0.0_idx
+    grd%u_sw_past%val(1:nx_p+1,0:ny_p+1)=0.0_idx
+    grd%v_sw_past%val(0:nx_p+1,1:ny_p+1)=0.0_idx
+    grd%h_sw_next%val(0:nx_p+1,0:ny_p+1)=0.0_idx
+    grd%u_sw_next%val(1:nx_p+1,0:ny_p+1)=0.0_idx
+    grd%v_sw_next%val(0:nx_p+1,1:ny_p+1)=0.0_idx
+    grd%u_ek%val(1:nx_p+1,0:ny_p+1)=0.0_idx
+    grd%v_ek%val(0:nx_p+1,1:ny_p+1)=0.0_idx
+    grd%w_ek%val(0:nx_p+1,0:ny_p+1)=0.0_idx
+    grd%u_ocn_1%val(1:nx_p+1,0:ny_p+1)=0.0_idx
+    grd%v_ocn_1%val(0:nx_p+1,1:ny_p+1)=0.0_idx
+    grd%w_ocn_1%val(0:nx_p+1,0:ny_p+1)=0.0_idx
+    grd%ua_ocn%val(0:nx_p+1,0:ny_p+1)=0.0_idx
+    grd%va_ocn%val(0:nx_p+1,0:ny_p+1)=0.0_idx
+    grd%taux_ocn%val(0:nx_p+1,0:ny_p+1)=0.0_idx
+    grd%tauy_ocn%val(0:nx_p+1,0:ny_p+1)=0.0_idx
+  end subroutine clean_ocn_dyn
   subroutine initialize_ocn_dyn(grd)
     implicit none
     type(ocn_dta),intent(inout) :: grd
-    integer :: nx_p,ny_p
-    nx_p=grd%nx_p;ny_p=grd%ny_p
-    allocate(grd%h_sw%val(0:nx_p+1,0:ny_p+1));grd%h_sw%val(0:nx_p+1,0:ny_p+1)=0.0_idx
-    allocate(grd%u_sw%val(1:nx_p+1,0:ny_p+1));grd%u_sw%val(1:nx_p+1,0:ny_p+1)=0.0_idx
-    allocate(grd%v_sw%val(0:nx_p+1,1:ny_p+1));grd%v_sw%val(0:nx_p+1,1:ny_p+1)=0.0_idx
-    allocate(grd%h_sw_past%val(0:nx_p+1,0:ny_p+1));grd%h_sw_past%val(0:nx_p+1,0:ny_p+1)=0.0_idx
-    allocate(grd%u_sw_past%val(1:nx_p+1,0:ny_p+1));grd%u_sw_past%val(1:nx_p+1,0:ny_p+1)=0.0_idx
-    allocate(grd%v_sw_past%val(0:nx_p+1,1:ny_p+1));grd%v_sw_past%val(0:nx_p+1,1:ny_p+1)=0.0_idx
-    allocate(grd%h_sw_next%val(0:nx_p+1,0:ny_p+1));grd%h_sw_next%val(0:nx_p+1,0:ny_p+1)=0.0_idx
-    allocate(grd%u_sw_next%val(1:nx_p+1,0:ny_p+1));grd%u_sw_next%val(1:nx_p+1,0:ny_p+1)=0.0_idx
-    allocate(grd%v_sw_next%val(0:nx_p+1,1:ny_p+1));grd%v_sw_next%val(0:nx_p+1,1:ny_p+1)=0.0_idx
-    allocate(grd%u_ek%val(1:nx_p+1,0:ny_p+1));grd%u_ek%val(1:nx_p+1,0:ny_p+1)=0.0_idx
-    allocate(grd%v_ek%val(0:nx_p+1,1:ny_p+1));grd%v_ek%val(0:nx_p+1,1:ny_p+1)=0.0_idx
-    allocate(grd%w_ek%val(0:nx_p+1,0:ny_p+1));grd%w_ek%val(0:nx_p+1,0:ny_p+1)=0.0_idx
-    allocate(grd%u_ocn_1%val(1:nx_p+1,0:ny_p+1));grd%u_ocn_1%val(1:nx_p+1,0:ny_p+1)=0.0_idx
-    allocate(grd%v_ocn_1%val(0:nx_p+1,1:ny_p+1));grd%v_ocn_1%val(0:nx_p+1,1:ny_p+1)=0.0_idx
-    allocate(grd%w_ocn_1%val(0:nx_p+1,0:ny_p+1));grd%w_ocn_1%val(0:nx_p+1,0:ny_p+1)=0.0_idx
-    allocate(grd%ua_ocn%val(0:nx_p+1,0:ny_p+1));grd%ua_ocn%val(0:nx_p+1,0:ny_p+1)=0.0_idx
-    allocate(grd%va_ocn%val(0:nx_p+1,0:ny_p+1));grd%va_ocn%val(0:nx_p+1,0:ny_p+1)=0.0_idx
-    allocate(grd%taux_ocn%val(0:nx_p+1,0:ny_p+1));grd%taux_ocn%val(0:nx_p+1,0:ny_p+1)=0.0_idx
-    allocate(grd%tauy_ocn%val(0:nx_p+1,0:ny_p+1));grd%tauy_ocn%val(0:nx_p+1,0:ny_p+1)=0.0_idx
+    call allocate_ocn_dyn(grd)
+    call clean_ocn_dyn(grd)
   end subroutine initialize_ocn_dyn
-  subroutine initialize_ocn_sst(grd)
+  subroutine allocate_ocn_sst(grd)
     implicit none
     type(ocn_dta),intent(inout) :: grd
     integer :: nx_p,ny_p
     nx_p=grd%nx_p;ny_p=grd%ny_p
-    allocate(grd%ssta_ocn%val(0:nx_p+1,0:ny_p+1));grd%ssta_ocn%val(0:nx_p+1,0:ny_p+1)=0.0_idx
-    allocate(grd%ssta_ocn_next%val(0:nx_p+1,0:ny_p+1));grd%ssta_ocn_next%val(0:nx_p+1,0:ny_p+1)=0.0_idx
+    allocate(grd%ssta_ocn%val(0:nx_p+1,0:ny_p+1)); allocate(grd%ssta_ocn_next%val(0:nx_p+1,0:ny_p+1))
+  end subroutine allocate_ocn_sst
+  subroutine clean_ocn_sst(grd)
+    implicit none
+    type(ocn_dta),intent(inout) :: grd
+    integer :: nx_p,ny_p
+    nx_p=grd%nx_p;ny_p=grd%ny_p
+    grd%ssta_ocn%val(0:nx_p+1,0:ny_p+1)=0.0_idx;grd%ssta_ocn_next%val(0:nx_p+1,0:ny_p+1)=0.0_idx
+  end subroutine clean_ocn_sst
+  subroutine initialize_ocn_sst(grd)
+    implicit none
+    type(ocn_dta),intent(inout) :: grd
+    call allocate_ocn_sst(grd)
+    call clean_ocn_sst(grd)
   end subroutine initialize_ocn_sst
   subroutine initialize_ocn_visc(grd,oset)
     implicit none

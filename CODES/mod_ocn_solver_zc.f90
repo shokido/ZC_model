@@ -784,7 +784,7 @@ contains
     type(ocn_set),intent(in) :: oset
     type(TLL_dta),intent(inout) :: mudata,mvdata,mwdata,mhdata,mTzdata,msstdata
     real(idx),intent(in) :: dt
-    integer :: ix,iy,nx,ny
+    integer :: ix,iy
     real(idx) :: umTa,uaTm,uaTa,znadv
     real(idx) :: dTadx,dTmdx,ua,uc
     real(idx) :: vmTa,vaTm,vaTa,mnadv
@@ -796,10 +796,8 @@ contains
     real(idx) :: F1,F2
     H1=oset%H1
     eps_s_sst=1.0/(oset%eps_s_sst_day*day_to_sec)
-    nx=ogrd%nx_p
-    ny=ogrd%ny_p
-    do iy=1,ny
-       do ix=1,nx
+     do iy=1,ogrd%ny_p
+       do ix=1,ogrd%nx_p
          ! Zonal advection
           u1=0.5_idx*(mudata%data_now%val(ix,iy)*ogrd%mask_u%val(ix,iy)+&
                & mudata%data_now%val(ix+1,iy)*ogrd%mask_u%val(ix+1,iy))
