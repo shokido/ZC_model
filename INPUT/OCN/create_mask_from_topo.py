@@ -1,7 +1,7 @@
 import subprocess
 import netCDF4 as ncdf
 import numpy as np
-grd_name='eqpac_ref'
+grd_name='eqpac_30'
 fname_gdes='des_grid_'+grd_name+'.dat'
 fname_mask='mask_'+grd_name+'.nc'
 fname_topo='/Users/skido/DATA/TOPO/etopo5.nc'

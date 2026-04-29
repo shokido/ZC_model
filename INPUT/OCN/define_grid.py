@@ -4,8 +4,12 @@ import netCDF4 as ncdf
 import math
 import os
 import subprocess
-gname="eqpac_ref"
+gname="eqpac_20"
+lon_w=110.0;lon_e=300.0;lat_s=-20.0;lat_n=20.0
+gname="eqpac_30"
 lon_w=110.0;lon_e=300.0;lat_s=-30.0;lat_n=30.0
+#gname="eqall_30"
+#lon_w=0.0;lon_e=362.5;lat_s=-30.0;lat_n=30.0
 dlon=2.5;dlat=1.0
 fname_grid="grid_"+gname+".nc"
 fname_gdes="des_grid_"+gname+".dat"

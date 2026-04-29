@@ -6,15 +6,15 @@ v1=1.0
 v2=10.0
 thres=300.0*1000
 
-grid_name="eqpac_v1"
-fname_grid="grid_"+grid_name+".nc"
+grd_name="eqpac_30"
+fname_grid="grid_"+grd_name+".nc"
 nc1=ncdf.Dataset(fname_grid,"r+")
+lon_p=nc1.variables["lon_p"][:]
 y_u=nc1.variables["y_u_2d"][:,:]
 y_v=nc1.variables["y_v_2d"][:,:]
 damp_u=np.copy(nc1.variables["damp_u"][:,:])
 damp_v=np.copy(nc1.variables["damp_v"][:,:])
 
-#print(y_u)
 y_u=y_u[:,0];y_v=y_v[:,0]
 ny_u=len(y_u)
 ny_v=len(y_v)

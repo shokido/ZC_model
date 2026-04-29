@@ -2,8 +2,7 @@
 import netCDF4 as ncdf
 import numpy as np
 
-grd_name="eqpac_v2"
-grd_name="eqpac_ref"
+grd_name="eqpac_30"
 fname_grd="grid_"+grd_name+".nc"
 fname_mask="mask_"+grd_name+"_rev.nc"
 fname_mask_sst="mask_"+grd_name+"_rev_sst.nc"
