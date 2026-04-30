@@ -10,6 +10,7 @@ The code is intended for research and experimentation. Exact scientific
 configuration, validation status, and recommended default experiment should be
 confirmed before using the model for publication-quality results.
 
+
 ## Model Overview
 
 The repository provides four main executables:
@@ -26,6 +27,11 @@ mapping file, background ocean fields, SST and wind forcing files, and parameter
 settings from a Fortran namelist. The available example namelists are mostly for
 equatorial Pacific configurations (`eqpac`, `eqall`) and climatological or
 annual-cycle background states.
+
+## Example Visualization
+
+![CGCM SST anomaly animation](GALLERY/cgcm_ssta_cartopy.gif)
+
 
 ## Repository Structure
 
