@@ -89,7 +89,7 @@ contains
     call get_variable(fname,"wgt_AtoO",(/1,1,1/),(/nx_o+2,ny_o+2,4/),v_3d)
     cinfo%wgt_AtoO%val(0:nx_o+1,0:ny_o+1,1:4)=v_3d(1:nx_o+2,1:ny_o+2,1:4)
     call get_variable(fname,"ind_OtoA_x",(/1,1,1/),(/nx_a,ny_a,4/),i_3d)
-    cinfo%ind_OtoA_x%val(1:nx_a,0:ny_a,1:4)=i_3d(1:nx_a,1:ny_a,1:4)
+    cinfo%ind_OtoA_x%val(1:nx_a,1:ny_a,1:4)=i_3d(1:nx_a,1:ny_a,1:4)
     call get_variable(fname,"ind_OtoA_y",(/1,1,1/),(/nx_a,ny_a,4/),i_3d)
     cinfo%ind_OtoA_y%val(1:nx_a,1:ny_a,1:4)=i_3d(1:nx_a,1:ny_a,1:4)
     call get_variable(fname,"wgt_OtoA",(/1,1,1/),(/nx_a,ny_a,4/),v_3d)
