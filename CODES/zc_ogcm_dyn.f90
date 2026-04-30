@@ -73,6 +73,7 @@ program zc_ogcm_dyn
   write(*,*) "dt=",dt
   write(*,*) "Number of step=",ntime
   ! Read ocean grid
+  write(*,*) trim(fname_grd_ocn)
   call read_ocn_dyn_grd(fname_grd_ocn,ogrd)
   ! Set masking
   call set_mask_ocn(ogrd,oset%slip_ind)
@@ -118,6 +119,7 @@ program zc_ogcm_dyn
      call solve_rg_vgeo_ocn(ogrd,oset,dt)
      ! Calculate total current
      call solve_totalcurrent_ocn(ogrd,oset)
+     call update_rg_vgeo(ogrd)
      ! Add snapshot to mean fiedls
      call oper_avg_ocn_dyn(ogrd)
      ! I/O operation

@@ -490,236 +490,18 @@ contains
         & ogrd%v_sw_next%val(0:ogrd%nx_p+1,1:ogrd%ny_p+1),&
         & oset%wbc_flag_v,oset%ebc_flag_v,oset%nbc_flag_v,oset%sbc_flag_v,&
         & oset%slip_ind)
-   ! Update
+   deallocate(rhs1_h);deallocate(rhs1_u);deallocate(rhs1_v)
+ end subroutine solve_rg_vgeo_ocn
+ subroutine update_rg_vgeo(ogrd)
+   implicit none
+    type(ocn_dta),intent(inout) :: ogrd
    ogrd%u_sw_past%val(1:ogrd%nx_p+1,0:ogrd%ny_p+1) = ogrd%u_sw%val(1:ogrd%nx_p+1,0:ogrd%ny_p+1)
    ogrd%u_sw%val(1:ogrd%nx_p+1,0:ogrd%ny_p+1) = ogrd%u_sw_next%val(1:ogrd%nx_p+1,0:ogrd%ny_p+1)
    ogrd%v_sw_past%val(0:ogrd%nx_p+1,1:ogrd%ny_p+1) = ogrd%v_sw%val(0:ogrd%nx_p+1,1:ogrd%ny_p+1)
    ogrd%v_sw%val(0:ogrd%nx_p+1,1:ogrd%ny_p+1) = ogrd%v_sw_next%val(0:ogrd%nx_p+1,1:ogrd%ny_p+1)
    ogrd%h_sw_past%val(0:ogrd%nx_p+1,0:ogrd%ny_p+1) = ogrd%h_sw%val(0:ogrd%nx_p+1,0:ogrd%ny_p+1)
    ogrd%h_sw%val(0:ogrd%nx_p+1,0:ogrd%ny_p+1) = ogrd%h_sw_next%val(0:ogrd%nx_p+1,0:ogrd%ny_p+1)
-   deallocate(rhs1_h);deallocate(rhs1_u);deallocate(rhs1_v)
- end subroutine solve_rg_vgeo_ocn
-  subroutine solve_rg_vgeo_ocn_rk2(ogrd,oset,dt)
-    implicit none
-    type(ocn_dta),intent(inout) :: ogrd
-    type(ocn_set),intent(in) :: oset
-    real(idx),intent(in) :: dt
-    integer :: ix,iy
-    real(idx),allocatable :: rhs1_u(:,:),rhs1_v(:,:),rhs1_h(:,:)
-    real(idx),allocatable :: rhs2_u(:,:),rhs2_v(:,:),rhs2_h(:,:)
-    real(idx),allocatable :: u_tmp(:,:),v_tmp(:,:),h_tmp(:,:)
-    allocate(rhs1_h(0:ogrd%nx_p+1,0:ogrd%ny_p+1));
-    allocate(rhs2_h(0:ogrd%nx_p+1,0:ogrd%ny_p+1));
-    allocate(h_tmp(0:ogrd%nx_p+1,0:ogrd%ny_p+1))
-    allocate(rhs1_u(1:ogrd%nx_p+1,0:ogrd%ny_p+1));
-    allocate(rhs2_u(1:ogrd%nx_p+1,0:ogrd%ny_p+1));
-    allocate(u_tmp(1:ogrd%nx_p+1,0:ogrd%ny_p+1))
-    allocate(rhs1_v(0:ogrd%nx_p+1,1:ogrd%ny_p+1));
-    allocate(rhs2_v(0:ogrd%nx_p+1,1:ogrd%ny_p+1));
-    allocate(v_tmp(0:ogrd%nx_p+1,1:ogrd%ny_p+1))
-    call get_rhs_u(ogrd,oset,ogrd%u_sw%val,ogrd%v_sw%val,ogrd%h_sw%val,rhs1_u)
-    ! ! u    x:2~nx_p # 1:WB nx+1:EB
-    ! !      y:1~ny # 0:SB ny+1:NB
-    do iy = 1,ogrd%ny_p
-       do ix = 2,ogrd%nx_p
-          ! Update u
-          u_tmp(ix,iy)=ogrd%u_sw%val(ix,iy) +dt * ogrd%mask_u%val(ix,iy) * rhs1_u(ix,iy)
-       end do
-    end do
-    call get_rhs_v(ogrd,oset,ogrd%u_sw%val,ogrd%v_sw%val,ogrd%h_sw%val,rhs1_v)
-    ! v    x:1~nx # 0:WB nx+1:EB
-    !      y:2~ny # 1:SB ny+1:NB
-    do iy = 2,ogrd%ny_p
-       do ix = 1,ogrd%nx_p
-          v_tmp(ix,iy)=ogrd%v_sw%val(ix,iy)+ dt*ogrd%mask_v%val(ix,iy)*rhs1_v(ix,iy)
-       end do
-    end do
-    ! P
-    call get_rhs_p(ogrd,oset,ogrd%u_sw%val,ogrd%v_sw%val,ogrd%h_sw%val,rhs1_h)
-    do iy = 1,ogrd%ny_p
-       do ix = 1,ogrd%nx_p
-          h_tmp(ix,iy)=ogrd%h_sw%val(ix,iy)+dt*ogrd%mask_p%val(ix,iy)*rhs1_h(ix,iy)
-       end do
-    end do
-   call set_bc_p(ogrd%nx_p,ogrd%ny_p,h_tmp(0:ogrd%nx_p+1,0:ogrd%ny_p+1),&
-        & oset%wbc_flag_p,oset%ebc_flag_p,oset%nbc_flag_p,oset%sbc_flag_p)
-   call set_bc_u(ogrd%nx_p,ogrd%ny_p,u_tmp(1:ogrd%nx_p+1,0:ogrd%ny_p+1),&
-        & oset%wbc_flag_u,oset%ebc_flag_u,oset%nbc_flag_u,oset%sbc_flag_u,&
-        & oset%slip_ind)
-   call set_bc_v(ogrd%nx_p,ogrd%ny_p,v_tmp(0:ogrd%nx_p+1,1:ogrd%ny_p+1),&
-        & oset%wbc_flag_v,oset%ebc_flag_v,oset%nbc_flag_v,oset%sbc_flag_v,&
-        & oset%slip_ind)
-
-   ! RK-2 step
-    call get_rhs_u(ogrd,oset,u_tmp,v_tmp,h_tmp,rhs2_u)
-    do iy = 1,ogrd%ny_p
-       do ix = 2,ogrd%nx_p
-          ! Update u
-          ogrd%u_sw_next%val(ix,iy)=ogrd%u_sw%val(ix,iy) +0.5_idx*dt*ogrd%mask_u%val(ix,iy)*(rhs1_u(ix,iy)+rhs2_u(ix,iy))
-       end do
-    end do
-    call get_rhs_v(ogrd,oset,u_tmp,v_tmp,h_tmp,rhs2_v)
-     do iy = 2,ogrd%ny_p
-       do ix = 1,ogrd%nx_p
-          ogrd%v_sw_next%val(ix,iy)=ogrd%v_sw%val(ix,iy)+0.5_idx*dt*ogrd%mask_v%val(ix,iy)*(rhs1_v(ix,iy)+rhs2_v(ix,iy))
-       end do
-    end do
-    ! P
-    call get_rhs_p(ogrd,oset,u_tmp,v_tmp,h_tmp,rhs2_h)
-    do iy = 1,ogrd%ny_p
-       do ix = 1,ogrd%nx_p
-          ogrd%h_sw_next%val(ix,iy)=ogrd%h_sw%val(ix,iy)+0.5_idx*dt*ogrd%mask_p%val(ix,iy)*(rhs1_h(ix,iy)+rhs2_h(ix,iy))
-       end do
-    end do
-    call set_bc_p(ogrd%nx_p,ogrd%ny_p,&
-        & ogrd%h_sw_next%val(0:ogrd%nx_p+1,0:ogrd%ny_p+1),&
-        & oset%wbc_flag_p,oset%ebc_flag_p,oset%nbc_flag_p,oset%sbc_flag_p)
-   call set_bc_u(ogrd%nx_p,ogrd%ny_p,&
-        & ogrd%u_sw_next%val(1:ogrd%nx_p+1,0:ogrd%ny_p+1),&
-        & oset%wbc_flag_u,oset%ebc_flag_u,oset%nbc_flag_u,oset%sbc_flag_u,&
-        & oset%slip_ind)
-   call set_bc_v(ogrd%nx_p,ogrd%ny_p,&
-        & ogrd%v_sw_next%val(0:ogrd%nx_p+1,1:ogrd%ny_p+1),&
-        & oset%wbc_flag_v,oset%ebc_flag_v,oset%nbc_flag_v,oset%sbc_flag_v,&
-        & oset%slip_ind)
-   ! Update
-   ogrd%u_sw%val(1:ogrd%nx_p+1,0:ogrd%ny_p+1) = ogrd%u_sw_next%val(1:ogrd%nx_p+1,0:ogrd%ny_p+1)
-   ogrd%v_sw%val(0:ogrd%nx_p+1,1:ogrd%ny_p+1) = ogrd%v_sw_next%val(0:ogrd%nx_p+1,1:ogrd%ny_p+1)
-   ogrd%h_sw%val(0:ogrd%nx_p+1,0:ogrd%ny_p+1) = ogrd%h_sw_next%val(0:ogrd%nx_p+1,0:ogrd%ny_p+1)
-   deallocate(rhs1_h);deallocate(rhs1_u);deallocate(rhs1_v)
-   deallocate(rhs2_h);deallocate(rhs2_u);deallocate(rhs2_v)
-   deallocate(h_tmp);deallocate(u_tmp);deallocate(v_tmp)
- end subroutine solve_rg_vgeo_ocn_rk2
-
-  subroutine solve_rg_vgeo_ocn_rk3(ogrd,oset,dt)
-    implicit none
-    type(ocn_dta),intent(inout) :: ogrd
-    type(ocn_set),intent(in) :: oset
-    real(idx),intent(in) :: dt
-    integer :: ix,iy
-    real(idx),allocatable :: rhs1_u(:,:),rhs1_v(:,:),rhs1_h(:,:)
-    real(idx),allocatable :: rhs2_u(:,:),rhs2_v(:,:),rhs2_h(:,:)
-    real(idx),allocatable :: rhs3_u(:,:),rhs3_v(:,:),rhs3_h(:,:)
-    real(idx),allocatable :: u_tmp1(:,:),v_tmp1(:,:),h_tmp1(:,:)
-    real(idx),allocatable :: u_tmp2(:,:),v_tmp2(:,:),h_tmp2(:,:)
-    allocate(rhs1_h(0:ogrd%nx_p+1,0:ogrd%ny_p+1));
-    allocate(rhs2_h(0:ogrd%nx_p+1,0:ogrd%ny_p+1));
-    allocate(rhs3_h(0:ogrd%nx_p+1,0:ogrd%ny_p+1));
-    allocate(h_tmp1(0:ogrd%nx_p+1,0:ogrd%ny_p+1))
-    allocate(h_tmp2(0:ogrd%nx_p+1,0:ogrd%ny_p+1))
-    allocate(rhs1_u(1:ogrd%nx_p+1,0:ogrd%ny_p+1));
-    allocate(rhs2_u(1:ogrd%nx_p+1,0:ogrd%ny_p+1));
-    allocate(rhs3_u(1:ogrd%nx_p+1,0:ogrd%ny_p+1));
-    allocate(u_tmp1(1:ogrd%nx_p+1,0:ogrd%ny_p+1))
-    allocate(u_tmp2(1:ogrd%nx_p+1,0:ogrd%ny_p+1))
-    allocate(rhs1_v(0:ogrd%nx_p+1,1:ogrd%ny_p+1));
-    allocate(rhs2_v(0:ogrd%nx_p+1,1:ogrd%ny_p+1));
-    allocate(rhs3_v(0:ogrd%nx_p+1,1:ogrd%ny_p+1));
-    allocate(v_tmp1(0:ogrd%nx_p+1,1:ogrd%ny_p+1))
-    allocate(v_tmp2(0:ogrd%nx_p+1,1:ogrd%ny_p+1))
-
-    !RK1
-    call get_rhs_u(ogrd,oset,ogrd%u_sw%val,ogrd%v_sw%val,ogrd%h_sw%val,rhs1_u)
-    do iy = 1,ogrd%ny_p
-       do ix = 2,ogrd%nx_p
-          u_tmp1(ix,iy)=ogrd%u_sw%val(ix,iy) +dt * ogrd%mask_u%val(ix,iy) * rhs1_u(ix,iy)
-       end do
-    end do
-    call get_rhs_v(ogrd,oset,ogrd%u_sw%val,ogrd%v_sw%val,ogrd%h_sw%val,rhs1_v)
-    do iy = 2,ogrd%ny_p
-       do ix = 1,ogrd%nx_p
-          v_tmp1(ix,iy)=ogrd%v_sw%val(ix,iy)+ dt*ogrd%mask_v%val(ix,iy)*rhs1_v(ix,iy)
-       end do
-    end do
-    call get_rhs_p(ogrd,oset,ogrd%u_sw%val,ogrd%v_sw%val,ogrd%h_sw%val,rhs1_h)
-    do iy = 1,ogrd%ny_p
-       do ix = 1,ogrd%nx_p
-          h_tmp1(ix,iy)=ogrd%h_sw%val(ix,iy)+dt*ogrd%mask_p%val(ix,iy)*rhs1_h(ix,iy)
-       end do
-    end do
-   call set_bc_p(ogrd%nx_p,ogrd%ny_p,h_tmp1(0:ogrd%nx_p+1,0:ogrd%ny_p+1),&
-        & oset%wbc_flag_p,oset%ebc_flag_p,oset%nbc_flag_p,oset%sbc_flag_p)
-   call set_bc_u(ogrd%nx_p,ogrd%ny_p,u_tmp1(1:ogrd%nx_p+1,0:ogrd%ny_p+1),&
-        & oset%wbc_flag_u,oset%ebc_flag_u,oset%nbc_flag_u,oset%sbc_flag_u,&
-        & oset%slip_ind)
-   call set_bc_v(ogrd%nx_p,ogrd%ny_p,v_tmp1(0:ogrd%nx_p+1,1:ogrd%ny_p+1),&
-        & oset%wbc_flag_v,oset%ebc_flag_v,oset%nbc_flag_v,oset%sbc_flag_v,&
-        & oset%slip_ind)
-   ! RK-2 step
-    call get_rhs_u(ogrd,oset,u_tmp1,v_tmp1,h_tmp1,rhs2_u)
-    do iy = 1,ogrd%ny_p
-       do ix = 2,ogrd%nx_p
-          ! Update u
-          u_tmp2(ix,iy)=ogrd%u_sw%val(ix,iy) +dt*ogrd%mask_u%val(ix,iy)*0.25_idx*(rhs1_u(ix,iy)+rhs2_u(ix,iy))
-       end do
-    end do
-    call get_rhs_v(ogrd,oset,u_tmp1,v_tmp1,h_tmp1,rhs2_v)
-     do iy = 2,ogrd%ny_p
-       do ix = 1,ogrd%nx_p
-          v_tmp2(ix,iy)=ogrd%v_sw%val(ix,iy) +dt*ogrd%mask_v%val(ix,iy)*0.25_idx*(rhs1_v(ix,iy)+rhs2_v(ix,iy))
-       end do
-    end do
-    ! P
-    call get_rhs_p(ogrd,oset,u_tmp1,v_tmp1,h_tmp1,rhs2_h)
-    do iy = 1,ogrd%ny_p
-       do ix = 1,ogrd%nx_p
-          h_tmp2(ix,iy)=ogrd%h_sw%val(ix,iy) +dt*ogrd%mask_p%val(ix,iy)*0.25_idx*(rhs1_h(ix,iy)+rhs2_h(ix,iy))
-       end do
-    end do
-   call set_bc_p(ogrd%nx_p,ogrd%ny_p,h_tmp2(0:ogrd%nx_p+1,0:ogrd%ny_p+1),&
-        & oset%wbc_flag_p,oset%ebc_flag_p,oset%nbc_flag_p,oset%sbc_flag_p)
-   call set_bc_u(ogrd%nx_p,ogrd%ny_p,u_tmp2(1:ogrd%nx_p+1,0:ogrd%ny_p+1),&
-        & oset%wbc_flag_u,oset%ebc_flag_u,oset%nbc_flag_u,oset%sbc_flag_u,&
-        & oset%slip_ind)
-   call set_bc_v(ogrd%nx_p,ogrd%ny_p,v_tmp2(0:ogrd%nx_p+1,1:ogrd%ny_p+1),&
-        & oset%wbc_flag_v,oset%ebc_flag_v,oset%nbc_flag_v,oset%sbc_flag_v,&
-        & oset%slip_ind)
-   ! RK3
-   ! Update
-    call get_rhs_u(ogrd,oset,u_tmp2,v_tmp2,h_tmp2,rhs3_u)
-    do iy = 1,ogrd%ny_p
-       do ix = 2,ogrd%nx_p
-          ! Update u
-          ogrd%u_sw_next%val(ix,iy)=ogrd%u_sw%val(ix,iy)+dt*ogrd%mask_u%val(ix,iy)*&
-               & (rhs1_u(ix,iy)/6.0_idx+rhs2_u(ix,iy)/6.0_idx+2.0_idx*rhs3_u(ix,iy)/3.0_idx)
-       end do
-    end do
-    call get_rhs_v(ogrd,oset,u_tmp2,v_tmp2,h_tmp2,rhs3_v)
-     do iy = 2,ogrd%ny_p
-       do ix = 1,ogrd%nx_p
-          ogrd%v_sw_next%val(ix,iy)=ogrd%v_sw%val(ix,iy)+dt*ogrd%mask_v%val(ix,iy)*&
-               & (rhs1_v(ix,iy)/6.0_idx+rhs2_v(ix,iy)/6.0_idx+2.0_idx*rhs3_v(ix,iy)/3.0_idx)
-       end do
-    end do
-    ! P
-    call get_rhs_p(ogrd,oset,u_tmp2,v_tmp2,h_tmp2,rhs3_h)
-    do iy = 1,ogrd%ny_p
-       do ix = 1,ogrd%nx_p
-          ogrd%h_sw_next%val(ix,iy)=ogrd%h_sw%val(ix,iy)+dt*ogrd%mask_p%val(ix,iy)*&
-               & (rhs1_h(ix,iy)/6.0_idx+rhs2_h(ix,iy)/6.0_idx+2.0_idx*rhs3_h(ix,iy)/3.0_idx)
-       end do
-    end do
-    call set_bc_p(ogrd%nx_p,ogrd%ny_p,&
-        & ogrd%h_sw_next%val(0:ogrd%nx_p+1,0:ogrd%ny_p+1),&
-        & oset%wbc_flag_p,oset%ebc_flag_p,oset%nbc_flag_p,oset%sbc_flag_p)
-   call set_bc_u(ogrd%nx_p,ogrd%ny_p,&
-        & ogrd%u_sw_next%val(1:ogrd%nx_p+1,0:ogrd%ny_p+1),&
-        & oset%wbc_flag_u,oset%ebc_flag_u,oset%nbc_flag_u,oset%sbc_flag_u,&
-        & oset%slip_ind)
-   call set_bc_v(ogrd%nx_p,ogrd%ny_p,&
-        & ogrd%v_sw_next%val(0:ogrd%nx_p+1,1:ogrd%ny_p+1),&
-        & oset%wbc_flag_v,oset%ebc_flag_v,oset%nbc_flag_v,oset%sbc_flag_v,&
-        & oset%slip_ind)
-
-   ogrd%u_sw%val(1:ogrd%nx_p+1,0:ogrd%ny_p+1) = ogrd%u_sw_next%val(1:ogrd%nx_p+1,0:ogrd%ny_p+1)
-   ogrd%v_sw%val(0:ogrd%nx_p+1,1:ogrd%ny_p+1) = ogrd%v_sw_next%val(0:ogrd%nx_p+1,1:ogrd%ny_p+1)
-   ogrd%h_sw%val(0:ogrd%nx_p+1,0:ogrd%ny_p+1) = ogrd%h_sw_next%val(0:ogrd%nx_p+1,0:ogrd%ny_p+1)
-   deallocate(rhs1_h);deallocate(rhs1_u);deallocate(rhs1_v)
-   deallocate(rhs2_h);deallocate(rhs2_u);deallocate(rhs2_v)
-   deallocate(rhs3_h);deallocate(rhs3_u);deallocate(rhs3_v)
-   deallocate(h_tmp1);deallocate(u_tmp1);deallocate(v_tmp1)
-   deallocate(h_tmp2);deallocate(u_tmp2);deallocate(v_tmp2)
- end subroutine solve_rg_vgeo_ocn_rk3
+   end subroutine update_rg_vgeo
  ! Get total current
  subroutine solve_totalcurrent_ocn(ogrd,oset)
     implicit none
@@ -988,8 +770,13 @@ contains
    call set_bc_p(ogrd%nx_p,ogrd%ny_p,&
         & ogrd%ssta_ocn_next%val(0:ogrd%nx_p+1,0:ogrd%ny_p+1),&
         & oset%wbc_flag_p,oset%ebc_flag_p,oset%nbc_flag_p,oset%sbc_flag_p)
-   ogrd%ssta_ocn%val(0:ogrd%nx_p+1,0:ogrd%ny_p+1) =ogrd%ssta_ocn_next%val(0:ogrd%nx_p+1,0:ogrd%ny_p+1)
  end subroutine solve_sst_ocn_ZC
+ subroutine update_ssta(ogrd)
+   implicit none
+    type(ocn_dta),intent(inout) :: ogrd
+   ogrd%ssta_ocn%val(0:ogrd%nx_p+1,0:ogrd%ny_p+1) =ogrd%ssta_ocn_next%val(0:ogrd%nx_p+1,0:ogrd%ny_p+1)
+  end subroutine update_ssta
+
  subroutine limit_total_SST(ogrd,msstdata)
     implicit none
     type(ocn_dta),intent(inout) :: ogrd

@@ -336,6 +336,8 @@ program zc_cgcm_full
      call solve_totalcurrent_ocn(ogrd,oset)
      call solve_sst_ocn_ZC(ogrd,oset,ocn_um_dta,ocn_vm_dta,ocn_wm_dta,&
           & ocn_hm_dta,ocn_Tzm_dta,ocn_sstm_dta,dt)
+     call update_rg_vgeo(ogrd)
+     call update_ssta(ogrd)
 !     call limit_total_SST(ogrd,ocn_sstm_dta)
      call oper_avg_ocn_dyn(ogrd)
      call oper_avg_ocn_sst(ogrd)

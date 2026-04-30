@@ -275,6 +275,8 @@ program zc_ogcm_full
      ! Solve SST equation
      call solve_sst_ocn_ZC(ogrd,oset,ocn_um_dta,ocn_vm_dta,ocn_wm_dta,&
           & ocn_hm_dta,ocn_Tzm_dta,ocn_sstm_dta,dt)
+     call update_rg_vgeo(ogrd)
+     call update_ssta(ogrd)
 
      ! Add snapshot to mean fiedls
      call oper_avg_ocn_dyn(ogrd)
