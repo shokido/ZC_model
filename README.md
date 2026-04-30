@@ -165,7 +165,7 @@ After the standalone ocean simulation, run the coupled model. A standard coupled
 example available in the repository is:
 
 ```text
-RUN/CGCM/do_cgcm_eqpac_30_ann_c1.3H120_dt3600_c10day.nml
+RUN/CGCM/do_cgcm_eqpac_30_ann_c1.4H120_dt3600_c10day.nml
 ```
 
 This namelist runs an equatorial Pacific coupled configuration with annual-cycle
@@ -174,7 +174,7 @@ background/forcing files. Run it from the repository root with:
 ```bash
 mkdir -p OUTPUTS/CGCM
 cd RUN/CGCM
-../../CODES/exec_solver_couple_full.out < do_cgcm_eqpac_30_ann_c1.3H120_dt3600_c10day.nml
+../../CODES/exec_solver_couple_full.out < do_cgcm_eqpac_30_ann_c1.4H120_dt3600_c10day.nml
 ```
 
 The model writes progress information to standard output and NetCDF files to
@@ -250,7 +250,7 @@ cd RUN/OGCM
 cd ../..
 mkdir -p OUTPUTS/CGCM
 cd RUN/CGCM
-../../CODES/exec_solver_couple_full.out < do_cgcm_eqpac_30_ann_c1.3H120_dt3600_c10day.nml
+../../CODES/exec_solver_couple_full.out < do_cgcm_eqpac_30_ann_c1.4H120_dt3600_c10day.nml
 
 # 5. Inspect results with notebooks in GALLERY/.
 cd ../../GALLERY
@@ -261,7 +261,7 @@ For a short test run, make a copy of the namelist first:
 
 ```bash
 cd RUN/CGCM
-cp do_cgcm_eqpac_30_ann_c1.3H120_dt3600_c10day.nml test_short.nml
+cp do_cgcm_eqpac_30_ann_c1.4H120_dt3600_c10day.nml test_short.nml
 ```
 
 Then edit `test_short.nml` to shorten the date range and change all output
