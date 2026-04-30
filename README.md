@@ -30,7 +30,7 @@ annual-cycle background states.
 
 ## Example Visualization
 
-![CGCM SST anomaly animation](GALLERY/cgcm_ssta_cartopy.gif)
+![CGCM SST anomaly animation](GALLERY/cgcm_ssta_ann.gif)
 
 
 ## Repository Structure
