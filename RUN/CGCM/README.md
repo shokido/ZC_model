@@ -254,14 +254,14 @@ with amplitude `us0_wwb`, duration scale `dur_wwb`, center
 ### `&param_atm`
 
 `param_atm` contains one variable, `aset`, a derived type defined as
-`type(atm_set)` in `CODES/run_types.f90`.
+`type(atm_set)` in `CODES/run_types.f90`. See `RUN/AGCM/README.md` for the
+detailed table of atmospheric parameters. In the CGCM, these parameters control
+the Gill-type atmosphere response used after ocean SST anomalies are mapped to
+the atmosphere grid.
 
-| Variable | Default in `run_types.f90` | Meaning in `zc_cgcm_full.f90` | Notes |
-| --- | --- | --- | --- |
-| `aset%cp_atm` | `60.0` | Atmospheric gravity-wave speed parameter. | Source comment gives units of m/s; used in atmosphere coordinate scaling and Gill-type response. |
-| `aset%eps_s_atm_day` | `1.106364457323311` | Atmosphere damping timescale parameter in days. | Used to form nondimensional damping in atmosphere response routines. |
-| `aset%alpha_gill_atm` | `0.031` | SST-to-heating coefficient for the Gill-type atmosphere. | Source comment gives units of `m^2*s^(-3)*K^(-1)`. |
-| `aset%heating_type` | `"ZC87"` | Selects atmosphere heating/response formulation. | Code branches for `"ZC87"`, `"ZC87_conv"`, and `"GJ22"`. The default namelist leaves this unset, so the type default `"ZC87"` is used. |
+The default CGCM namelist leaves `aset%heating_type` unset, so the type default
+`"ZC87"` is used. If `aset%heating_type=="ZC87_conv"`, additional atmosphere
+mean-wind input groups are required; see the atmosphere input section below.
 
 ### `&param_coupler`
 
