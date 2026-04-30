@@ -1,4 +1,4 @@
-# Zebiak-Cane Type ENSO Model
+# Zebiak-Cane Type intermediate atmosphere-ocean coupled ENSO Model
 
 This repository contains a Fortran implementation of a Zebiak-Cane type
 intermediate coupled ocean-atmosphere model for tropical Pacific ENSO
@@ -30,7 +30,7 @@ annual-cycle background states.
 
 ## Example Visualization
 
-![CGCM SST anomaly animation](GALLERY/cgcm_ssta_ann.gif)
+![CGCM SST anomaly animation](GALLERY/cgcm_ssta_thermocline.gif)
 
 
 ## Repository Structure
