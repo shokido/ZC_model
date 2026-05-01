@@ -4,7 +4,7 @@ This directory contains namelist files for standalone ocean model experiments.
 The standard ocean spin-up example used by the top-level README is:
 
 ```text
-do_ogcm_spn_eqpac_30_cd013H120.nml
+do_ogcm_spn_eqpac_30_cd014H120.nml
 ```
 
 Run from the repository root:
@@ -12,12 +12,12 @@ Run from the repository root:
 ```bash
 mkdir -p OUTPUTS/OGCM
 cd RUN/OGCM
-../../CODES/exec_solver_ocn_dyn.out < do_ogcm_spn_eqpac_30_cd013H120.nml
+../../CODES/exec_solver_ocn_dyn.out < do_ogcm_spn_eqpac_30_cd014H120.nml
 ```
 
 ## Standard Namelist Summary
 
-For `do_ogcm_spn_eqpac_30_cd013H120.nml`:
+For `do_ogcm_spn_eqpac_30_cd014H120.nml`:
 
 - Time step: `dt=3600.0` seconds.
 - Start date: `19700101`.
@@ -32,7 +32,7 @@ confirmed before publication use.
 
 ## Required Input Files
 
-Required by `do_ogcm_spn_eqpac_30_cd013H120.nml`:
+Required by `do_ogcm_spn_eqpac_30_cd014H120.nml`:
 
 - `../../INPUT/OCN/grid_eqpac_30.nc`
 - `../../Forcing/WIND/jra55do_v1.3_u10_clm_ocn_eqpac_30.nc`
@@ -47,8 +47,8 @@ The wind variables are read using:
 
 The standard namelist writes:
 
-- `../../OUTPUTS/OGCM/avg_spinup_clm_eqpac_30_H120_cd1.3_1_20.nc`
-- `../../OUTPUTS/OGCM/rst_spinup_clm_eqpac_30_H120_cd1.3_1_20.nc`
+- `../../OUTPUTS/OGCM/avg_spinup_clm_eqpac_30_H120_cd1.4_1_20.nc`
+- `../../OUTPUTS/OGCM/rst_spinup_clm_eqpac_30_H120_cd1.4_1_20.nc`
 
 The average file contains ocean dynamical fields such as `u_ocn_sw`,
 `v_ocn_sw`, `h_ocn_sw`, `u_ocn_ek`, `v_ocn_ek`, `w_ocn_ek`, `u_ocn_1`,
@@ -59,7 +59,6 @@ condition in later ocean experiments if the corresponding namelist is configured
 with `flag_ini_ocn="T"` and `fname_ini_ocn` pointing to the restart file.
 
 ## Namelist Variables for `zc_ogcm_dyn.f90`
-
 The executable `exec_solver_ocn_dyn.out` is built from `CODES/zc_ogcm_dyn.f90`.
 This driver runs the ocean dynamical part of the ZC model without the SST
 equation. It reads wind forcing, computes wind stress, Ekman currents,
@@ -149,16 +148,6 @@ members of `oset`.
 | `oset%Tsub_b1` | `1/80` | Subsurface-temperature parameter. | Not used by `zc_ogcm_dyn.f90`. Exact meaning to be confirmed. |
 | `oset%Tsub_b2` | `1/33` | Subsurface-temperature parameter. | Not used by `zc_ogcm_dyn.f90`. Exact meaning to be confirmed. |
 | `oset%Tsub_gamma` | `0.75` | Subsurface-temperature parameter. | Not used by `zc_ogcm_dyn.f90`. Exact meaning to be confirmed. |
-| `oset%kick_WWB` | `"F"` | Westerly-wind-burst switch. | Present in `ocn_set`, but not used by `zc_ogcm_dyn.f90`. |
-| `oset%G0_wwb` | `0.09` | WWB occurrence/intensity parameter. | Not used by `zc_ogcm_dyn.f90`; exact meaning to be confirmed. |
-| `oset%G1_wwb` | `0.0` | WWB occurrence/intensity parameter. | Not used by `zc_ogcm_dyn.f90`; exact meaning to be confirmed. |
-| `oset%dur_wwb` | `20.0` | WWB duration parameter. | Not used by `zc_ogcm_dyn.f90`; source comment indicates days in WWB routine. |
-| `oset%us0_wwb` | `6.5` | WWB wind-amplitude parameter. | Not used by `zc_ogcm_dyn.f90`; exact meaning to be confirmed. |
-| `oset%widx_wwb` | `20.0` | WWB zonal width parameter. | Not used by `zc_ogcm_dyn.f90`; exact units to be confirmed. |
-| `oset%widy_wwb` | `6.0` | WWB meridional width parameter. | Not used by `zc_ogcm_dyn.f90`; exact units to be confirmed. |
-| `oset%x0_wwb` | `160.0` | WWB center longitude parameter. | Not used by `zc_ogcm_dyn.f90`. |
-| `oset%y0_wwb` | `0.0` | WWB center latitude parameter. | Not used by `zc_ogcm_dyn.f90`. |
-
 ### `&taux_param_ocn`
 
 | Variable | Type | Meaning in `zc_ogcm_dyn.f90` | Notes |
@@ -201,7 +190,7 @@ and mean ocean fields used by the SST equation.
 A corresponding hindcast example is:
 
 ```text
-do_ogcm_hindcast_eqpac_30_cd013H120.nml
+do_ogcm_hindcast_eqpac_30_cd014H120.nml
 ```
 
 Run from the repository root:
@@ -209,7 +198,7 @@ Run from the repository root:
 ```bash
 mkdir -p OUTPUTS/OGCM OUTPUTS/CGCM
 cd RUN/OGCM
-../../CODES/exec_solver_ocn_full.out < do_ogcm_hindcast_eqpac_30_cd013H120.nml
+../../CODES/exec_solver_ocn_full.out < do_ogcm_hindcast_eqpac_30_cd014H120.nml
 ```
 
 Note: this namelist writes `fname_diag_ocn` under `../../OUTPUTS/CGCM/`, even
@@ -218,12 +207,12 @@ before sharing a standard workflow.
 
 ### Standard Full-Model Inputs and Outputs
 
-For `do_ogcm_hindcast_eqpac_30_cd013H120.nml`, the main inputs are:
+For `do_ogcm_hindcast_eqpac_30_cd014H120.nml`, the main inputs are:
 
 - `../../INPUT/OCN/grid_eqpac_30.nc`
 - `../../Forcing/WIND/jra55do_v1.3_u10_anm_ocn_eqpac_30.nc`
 - `../../Forcing/WIND/jra55do_v1.3_v10_anm_ocn_eqpac_30.nc`
-- `../../Forcing/OCN/basic_clm_eqpac_30_H120_cd1.3_1_20.nc`
+- `../../Forcing/OCN/basic_clm_eqpac_30_H120_cd1.4_1_20.nc`
 - `../../Forcing/WIND/jra55do_v1.3_u10_clm_ocn_eqpac_30.nc`
 - `../../Forcing/WIND/jra55do_v1.3_v10_clm_ocn_eqpac_30.nc`
 - `../../Forcing/Tzm/basic_2D_eqpac_30_ZC87.nc`
@@ -231,11 +220,11 @@ For `do_ogcm_hindcast_eqpac_30_cd013H120.nml`, the main inputs are:
 The standard namelist writes:
 
 - Average output:
-  `../../OUTPUTS/OGCM/avg_ogcm_hindcast_eqpac_30_H120_cd1.3_1_20.nc`
+  `../../OUTPUTS/OGCM/avg_ogcm_hindcast_eqpac_30_H120_cd1.4_1_20.nc`
 - Diagnostic output:
-  `../../OUTPUTS/CGCM/diag_ogcm_hindcast_eqpac_30_H120_cd1.3_1_20.nc`
+  `../../OUTPUTS/CGCM/diag_ogcm_hindcast_eqpac_30_H120_cd1.4_1_20.nc`
 - Restart output:
-  `../../OUTPUTS/OGCM/rst_ogcm_hindcast_eqpac_30_H120_cd1.3_1_20.nc`
+  `../../OUTPUTS/OGCM/rst_ogcm_hindcast_eqpac_30_H120_cd1.4_1_20.nc`
 
 The average file includes the dynamical variables from `zc_ogcm_dyn.f90` and
 also `ssta`, the simulated SST anomaly. The diagnostic file contains SST-budget

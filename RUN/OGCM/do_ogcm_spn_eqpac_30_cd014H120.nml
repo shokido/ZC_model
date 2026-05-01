@@ -6,13 +6,13 @@ end_yymmdd=19900101
 end_hhmmss=0
 /
 &io_ocn
-fname_grd_ocn="../../INPUT/OCN/grid_eqpac_v1.nc"
+fname_grd_ocn="../../INPUT/OCN/grid_eqpac_30.nc"
 flag_ini_ocn="F"
 fname_ini_ocn=""
-fname_avg_ocn="../../OUTPUTS/OGCM/avg_spinup_clm_eqpac_v1_bulk_H120_cd_1.7_1_20.nc"
+fname_avg_ocn="../../OUTPUTS/OGCM/avg_spinup_clm_eqpac_30_H120_cd1.4_1_20.nc"
 out_avg_flag=100
 out_avg_int=1
-fname_rst_ocn="../../OUTPUTS/OGCM/rst_spinup_clm_eqpac_v1_bulk_H120_cd_1.7_1_20.nc"
+fname_rst_ocn="../../OUTPUTS/OGCM/rst_spinup_clm_eqpac_30_H120_cd1.4_1_20.nc"
 /
 &param_ocn
 oset%wbc_flag_p="Clo"
@@ -33,7 +33,7 @@ oset%r_ocn_day=730
 oset%H1=50
 oset%H2=70
 oset%eps_s_ocn_day=2.0
-oset%cd_bulk=0.0017
+oset%cd_bulk=0.0014
 oset%nu=100000.0
 /
 &taux_param_ocn 
@@ -44,7 +44,7 @@ Lcycle_ocn_taux="T"
 Tcycle_ocn_taux=365
 /
 &taux_io_ocn 
-fnames_ocn_taux(1)="../../Forcing/WIND/jra55do_v1.3_u10_clm_ocn_eqpac_v1.nc"
+fnames_ocn_taux(1)="../../Forcing/WIND/jra55do_v1.3_u10_clm_ocn_eqpac_30.nc"
 /
 &tauy_param_ocn 
 nfile_ocn_tauy=1
@@ -54,5 +54,5 @@ Lcycle_ocn_tauy="T"
 Tcycle_ocn_tauy=365
 /
 &tauy_io_ocn 
-fnames_ocn_tauy(1)="../../Forcing/WIND/jra55do_v1.3_v10_clm_ocn_eqpac_v1.nc"
+fnames_ocn_tauy(1)="../../Forcing/WIND/jra55do_v1.3_v10_clm_ocn_eqpac_30.nc"
 /
