@@ -331,7 +331,11 @@ program zc_cgcm_full
      ! Calculate Ekman current
      call solve_ekman_ocn(ogrd,oset)
      ! Calculate geostrophic current
+#if defined LEAPFLOG
      call solve_rg_vgeo_ocn(ogrd,oset,dt)
+#else
+     call solve_rg_vgeo_ocn_rk2(ogrd,oset,dt)
+#endif     
      ! Calculate total current
      call solve_totalcurrent_ocn(ogrd,oset)
      call solve_sst_ocn_ZC(ogrd,oset,ocn_um_dta,ocn_vm_dta,ocn_wm_dta,&

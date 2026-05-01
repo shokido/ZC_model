@@ -269,7 +269,11 @@ program zc_ogcm_full
      ! Calculate Ekman currents
      call solve_ekman_ocn(ogrd,oset)
      ! Calculate geostrophic currents (with time stepping)
+#if defined LEAPFLOG
      call solve_rg_vgeo_ocn(ogrd,oset,dt)
+#else
+     call solve_rg_vgeo_ocn_rk2(ogrd,oset,dt)
+#endif     
      ! Calculate total current
      call solve_totalcurrent_ocn(ogrd,oset)
      ! Solve SST equation
