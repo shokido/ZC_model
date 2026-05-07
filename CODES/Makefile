@@ -9,7 +9,8 @@ NETCDF_LIBDIR=-L/opt/homebrew/Cellar/netcdf-fortran/4.6.1/lib -L/opt/homebrew/Ce
 #==========================
 FFLAGS += $(NETCDF_INCDIR)
 LDFLAGS += $(NETCDF_LIBDIR) -lnetcdf -lnetcdff
-LDFLAGS += -cpp
+LAPACK_LIBS = -llapack -lblas
+LDFLAGS += -cpp 
 LDFLAGS += -O3
 FFLAGS += -DWSTRESS_BULK
 FFLAGS_LEGACY+=-std=legacy -Wno-argument-mismatch
@@ -59,7 +60,7 @@ MODS  = ncdf_read.mod \
 all : $(TARGET_ogcm_dyn) $(TARGET_ogcm_full) $(TARGET_agcm) $(TARGET_cgcm_full)  
 ogcm: $(TARGET_ogcm_dyn) $(TARGET_ogcm_full)
 agcm: $(TARGET_agcm)
-cgcm: $(TARGET_cgcm)
+cgcm: $(TARGET_cgcm_full)
 $(TARGET_ogcm_full): $(OBJ_ncdf) $(OBJ_calendar) $(OBJ_run) $(OBJ_io) $(OBJ_ocn_driver) $(OBJ_ocn_full)
 	$(FC) -o $@ $(OBJ_ncdf) $(OBJ_calendar) $(OBJ_run) $(OBJ_io) $(OBJ_ocn_driver) $(OBJ_ocn_full) ${LDFLAGS} ${FFLAGS}
 $(TARGET_ogcm_dyn): $(OBJ_ncdf) $(OBJ_calendar) $(OBJ_run) $(OBJ_io) $(OBJ_ocn_driver) $(OBJ_ocn_dyn)
@@ -71,12 +72,14 @@ $(TARGET_agcm): $(OBJ_ncdf) $(OBJ_calendar) $(OBJ_fft) $(OBJ_run) $(OBJ_io) $(OB
 $(TARGET_cgcm_full): $(OBJ_ncdf) $(OBJ_calendar) $(OBJ_fft) $(OBJ_run) $(OBJ_io) $(OBJ_atm_driver) $(OBJ_ocn_driver) $(OBJ_couple_driver) $(OBJ_couple_full)
 	$(FC) -o $@ $(OBJ_ncdf) $(OBJ_calendar) $(OBJ_fft) $(OBJ_run) $(OBJ_io) $(OBJ_atm_driver) $(OBJ_ocn_driver) $(OBJ_couple_driver) $(OBJ_couple_full) ${LDFLAGS} ${FFLAGS}
 
+
 #Objects--------------------------------------
+do_eigana.o: ncdf_read.o ncdf_write.o run_params.o
 fftpack5.1.o:fftpack5.1.f90
 	$(FC) -c $< ${LDFLAGS} ${FFLAGS_LEGACY}
 %.o: %.f90
 	$(FC) -c $< ${LDFLAGS} ${FFLAGS}
 clean:
-	rm -f $(TARGET_ogcm_full) $(TARGET_ogcm_dyn) $(TARGET_agcm) $(TARGET_cgcm_full) $(OBJ_ncdf) $(OBJ_calendar) $(OBJ_fft) $(OBJ_run) $(OBJ_io) $(OBJ_ocn_dyn) $(OBJ_ocn_full) $(OBJ_ocn_driver) $(OBJ_atm) $(OBJ_atm_driver) $(OBJ_stcouple) $(OBJ_couple_full) $(OBJ_couple_driver)  $(MODS)
+	rm -f $(TARGET_ogcm_full) $(TARGET_ogcm_dyn) $(TARGET_agcm) $(TARGET_cgcm_full) $(OBJ_ncdf) $(OBJ_calendar) $(OBJ_fft) $(OBJ_run) $(OBJ_io) $(OBJ_ocn_dyn) $(OBJ_ocn_full) $(OBJ_ocn_driver) $(OBJ_atm) $(OBJ_atm_driver) $(OBJ_stcouple) $(OBJ_couple_full) $(OBJ_couple_lnmatrix) $(OBJ_couple_driver) $(OBJ_eigana) $(MODS)
 oclean:
 	rm -f $(TARGET_ogcm)  $(OBJ_run) $(OBJ_io) $(OBJ_ocn_full) $(OBJ_ocn_dyn) $(OBJ_ocn_driver) $(OBJ_couple_full) 

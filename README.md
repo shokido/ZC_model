@@ -122,11 +122,6 @@ make -f Makefile agcm     # build standalone atmosphere executable
 make -f Makefile clean    # remove generated objects, modules, and executables
 ```
 
-Note: the `cgcm` target in the current Makefile appears to reference
-`$(TARGET_cgcm)`, while the defined coupled target is
-`$(TARGET_cgcm_full)`. Use `make -f Makefile` to build the coupled executable,
-or confirm/fix the target name before relying on `make cgcm`.
-
 ## Running a Standalone Ocean Simulation
 
 Start with a standalone ocean spin-up before running the coupled model. A
@@ -191,7 +186,7 @@ Runtime may be long because this example spans 1970-01-01 to 2020-01-01 with
 `dt=3600.0`. For a quick smoke test, copy the namelist, shorten `end_yymmdd`,
 and write to new output filenames so existing outputs are not overwritten.
 
-## Standalone Atmosphere Example
+## Standalone Atmospheric Simulation Example
 
 A standalone atmosphere example is:
 
@@ -276,17 +271,10 @@ filenames to avoid overwriting existing files.
 ## Known Limitations and Caveats
 
 - The Makefile contains machine-specific NetCDF paths.
-- The `make cgcm` target appears inconsistent with the defined coupled target;
-  use the default `make -f Makefile` target unless this is corrected.
-- The repository contains many generated files (`*.o`, `*.mod`, `*.out`, and
-  NetCDF outputs) in the working tree. Decide which generated files should be
-  shared or excluded before distributing the repository.
 - There is no automated test suite currently documented.
 - The exact validated/default experiment is to be confirmed.
 - Units and scientific interpretation of several parameters and output
   variables should be confirmed from the source and/or publications.
-- The model should not be described as a complete climate model; it is an
-  intermediate Zebiak-Cane type ENSO model implementation.
 - Reproducibility may depend on compiler, NetCDF library versions, and exact
   forcing files.
 
