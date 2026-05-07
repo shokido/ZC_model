@@ -29,7 +29,7 @@ equatorial Pacific configurations (`eqpac`, `eqall`) and climatological or
 annual-cycle background states.
 
 ## Example Visualization
-
+Simulated sea surface temperature and thermocline depth for fully-coupled simulation.
 ![CGCM SST anomaly animation](GALLERY/cgcm_ssta_thermocline.gif)
 
 
