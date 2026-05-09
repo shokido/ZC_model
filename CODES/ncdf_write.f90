@@ -856,7 +856,7 @@ contains
     call WRITENET_wv(file_name,dimname(2),(/1/),(/ndims2/),dim2)
     call WRITENET_wv(file_name,dimname(3),(/1/),(/ndims3/),dim3)
     call WRITENET_wv(file_name,dimname(4),(/1/),(/ndims4/),dim4)
-    call WRITENET_wv(file_name,dimname(5),(/1/),(/ndims1/),dim4)
+    call WRITENET_wv(file_name,dimname(5),(/1/),(/ndims5/),dim5)
   end subroutine WRITENET_5D_PRE_I
   subroutine WRITENET_5D_PRE_F(file_name,ndims1,ndims2,ndims3,ndims4,ndims5,&
        & dim1_name,dim2_name,dim3_name,dim4_name,dim5_name,&
@@ -890,7 +890,7 @@ contains
     call WRITENET_wv(file_name,dimname(2),(/1/),(/ndims2/),dim2)
     call WRITENET_wv(file_name,dimname(3),(/1/),(/ndims3/),dim3)
     call WRITENET_wv(file_name,dimname(4),(/1/),(/ndims4/),dim4)
-    call WRITENET_wv(file_name,dimname(5),(/1/),(/ndims1/),dim4)
+    call WRITENET_wv(file_name,dimname(5),(/1/),(/ndims5/),dim5)
   end subroutine WRITENET_5D_PRE_F
   subroutine WRITENET_5D_PRE_D(file_name,ndims1,ndims2,ndims3,ndims4,ndims5,&
        & dim1_name,dim2_name,dim3_name,dim4_name,dim5_name,&
@@ -924,7 +924,7 @@ contains
     call WRITENET_wv(file_name,dimname(2),(/1/),(/ndims2/),dim2)
     call WRITENET_wv(file_name,dimname(3),(/1/),(/ndims3/),dim3)
     call WRITENET_wv(file_name,dimname(4),(/1/),(/ndims4/),dim4)
-    call WRITENET_wv(file_name,dimname(5),(/1/),(/ndims1/),dim4)
+    call WRITENET_wv(file_name,dimname(5),(/1/),(/ndims5/),dim5)
   end subroutine WRITENET_5D_PRE_D
   ! *********************************
   ! subrotines for define variables *
