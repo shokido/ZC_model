@@ -127,9 +127,9 @@ for iy in range(0,ny+1):
     f[iy,:]= cal_f(lat_p[iy])
 
 # Create damper
-damp_p_out=np.ones((ny_p,nx_p))
-damp_u_out=np.ones((ny_u,nx_u))
-damp_v_out=np.ones((ny_v,nx_v))
+damp_p_out=np.zeros((ny_p,nx_p))
+damp_u_out=np.zeros((ny_u,nx_u))
+damp_v_out=np.zeros((ny_v,nx_v))
 
 mask_p=np.ones((ny_p,nx_p))
     
