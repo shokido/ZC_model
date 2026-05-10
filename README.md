@@ -169,7 +169,7 @@ example available in the repository is:
 RUN/CGCM/do_cgcm_eqpac_30_ann_c1.4H120_dt3600_c10day.nml
 ```
 
-This namelist runs an equatorial Pacific coupled configuration with annual-cycle
+This namelist runs an equatorial Pacific coupled configuration without annual-cycle
 background/forcing files. Run it from the repository root with:
 
 ```bash
