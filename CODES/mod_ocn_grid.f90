@@ -164,9 +164,6 @@ contains
     real(idx),parameter :: scale=10
     integer,parameter :: nys=10
     nx_p=grd%nx_p;ny_p=grd%ny_p
-    grd%damp_p%val(0:nx_p+1,0:ny_p+1)=(1.0_idx/(oset%r_ocn_day*day_to_sec))*grd%damp_p%val(0:nx_p+1,0:ny_p+1)
-    grd%damp_u%val(1:nx_p+1,0:ny_p+1)=(1.0_idx/(oset%r_ocn_day*day_to_sec))*grd%damp_u%val(1:nx_p+1,0:ny_p+1)
-    grd%damp_v%val(0:nx_p+1,1:ny_p+1)=(1.0_idx/(oset%r_ocn_day*day_to_sec))*grd%damp_v%val(0:nx_p+1,1:ny_p+1)
     allocate(grd%visc_2D%val(0:nx_p+1,0:ny_p+1))
     grd%visc_2D%val(0:nx_p+1,1:ny_p+1)=oset%nu
   end subroutine initialize_ocn_visc

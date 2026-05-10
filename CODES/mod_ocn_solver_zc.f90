@@ -320,7 +320,7 @@ contains
          tx= 0.5_idx*(ogrd%taux_ocn%val(ix-1,iy) + ogrd%taux_ocn%val(ix,iy)) * &
               (1.0_idx/((H1+H2)* rho0_o))            
           ! Drag force
-          drag_u = -1.0_idx * u(ix,iy) * (ogrd%damp_u%val(ix,iy))
+          drag_u = -1.0_idx * u(ix,iy) * (1.0_idx/(oset%r_ocn_day*day_to_sec)+ogrd%damp_u%val(ix,iy))
           ! U-viscosity
           dudx_e = (u(ix+1,iy) - u(ix,iy)) / &
                & (ogrd%x_u%val(ix+1,iy)-ogrd%x_u%val(ix,iy))
@@ -371,7 +371,7 @@ contains
           ty=0.5_idx*(ogrd%tauy_ocn%val(ix,iy-1) + ogrd%tauy_ocn%val(ix,iy)) * &
                & (1.0_idx/((H1+H2)* rho0_o))
           ! Drag
-          drag_v = -1.0_idx * v(ix,iy) * (ogrd%damp_v%val(ix,iy))
+          drag_v = -1.0_idx * v(ix,iy) * (1.0_idx/(oset%r_ocn_day*day_to_sec)+ogrd%damp_v%val(ix,iy))
           ! Viscosity
           dvdx_e = ogrd%mask_phi_v%val(ix+1,iy) * (v(ix+1,iy) -v(ix,iy)) &
                & / (ogrd%x_v%val(ix+1,iy)-ogrd%x_v%val(ix,iy))
@@ -414,7 +414,7 @@ contains
                & / (ogrd%x_u%val(ix+1,iy)-ogrd%x_u%val(ix,iy))
           dvdy=-1.0_idx*(H1+H2)*(v(ix,iy+1)-v(ix,iy)) &
                & / (ogrd%y_v%val(ix,iy+1)-ogrd%y_v%val(ix,iy))
-          drag_p = -1.0_idx * h(ix,iy) * (ogrd%damp_p%val(ix,iy))
+          drag_p = -1.0_idx * h(ix,iy) * (1.0_idx/(oset%r_ocn_day*day_to_sec)+ogrd%damp_p%val(ix,iy))
           rhs_p(ix,iy) = drag_p + dudx + dvdy
        end do
     end do
