@@ -211,11 +211,11 @@ contains
        end do
     end select
   end subroutine set_bc_u
-  subroutine set_bc_v(nx,ny,v_next,wbc_flag,ebc_flag,nbc_flag,sbc_flag,slip_ind)
+  subroutine set_bc_v(nx,ny,v,wbc_flag,ebc_flag,nbc_flag,sbc_flag,slip_ind)
     implicit none
     integer,intent(in) :: nx,ny
 !    real(idx),intent(in) :: v(0:nx+1,1:ny+1),v_past(0:nx+1,1:ny+1)
-    real(idx),intent(inout) :: v_next(0:nx+1,1:ny+1)
+    real(idx),intent(inout) :: v(0:nx+1,1:ny+1)
     character(len=*),intent(in) :: wbc_flag,ebc_flag,nbc_flag,sbc_flag
     real(idx),intent(in) :: slip_ind
     real(idx) :: gamma2
@@ -229,15 +229,15 @@ contains
     select case(wbc_flag)
     case ("Clo","CLO","clo") ! Closed boundary condition
        do iy = 2,ny
-          v_next(0,iy) = gamma2 * v_next(1,iy)
+          v(0,iy) = gamma2 * v(1,iy)
        end do
     case ("Gra","GRA","gra") ! Gradient boundary condition
        do iy = 2,ny
-          v_next(0,iy) = v_next(1,iy)
+          v(0,iy) = v(1,iy)
        end do
     case ("Per","PER","per") ! Periodic boundary condition
        do iy = 2,ny
-          v_next(0,iy) = v_next(nx-1,iy)
+          v(0,iy) = v(nx-1,iy)
        end do
     end select
     !=================================
@@ -246,15 +246,15 @@ contains
     select case(ebc_flag)
     case ("Clo","CLO","clo") ! Closed boundary condition
        do iy = 2,ny
-          v_next(nx+1,iy) = gamma2 * v_next(nx,iy)
+          v(nx+1,iy) = gamma2 * v(nx,iy)
        end do
     case ("Gra","GRA","gra") ! Gradient boundary condition
        do iy = 2,ny
-          v_next(nx+1,iy) = v_next(nx,iy)
+          v(nx+1,iy) = v(nx,iy)
        end do
     case ("Per","PER","per") ! Periodic boundary condition
        do iy = 2,ny
-          v_next(nx+1,iy) = v_next(2,iy)
+          v(nx+1,iy) = v(2,iy)
        end do
     end select
     !=================================
@@ -263,15 +263,15 @@ contains
     select case(sbc_flag)
     case ("Clo","CLO","clo") ! Closed boundary condition
        do ix = 1,nx
-          v_next(ix,1) = 0.0_idx
+          v(ix,1) = 0.0_idx
        end do
     case ("Gra","GRA","gra") ! Gradient boundary condition
        do ix = 1,nx
-          v_next(ix,1) = v_next(ix,2)
+          v(ix,1) = v(ix,2)
        end do
     case ("Per","PER","per") ! Periodic boundary condition
        do ix = 1,nx
-          v_next(ix,1) = v_next(ix,ny)
+          v(ix,1) = v(ix,ny)
        end do
     end select
     !=================================
@@ -280,15 +280,15 @@ contains
     select case(nbc_flag)
     case ("Clo","CLO","clo") ! Closed bondary condition
        do ix = 1,nx
-          v_next(ix,ny+1) = 0.0_idx
+          v(ix,ny+1) = 0.0_idx
        end do
     case ("Gra","GRA","gra") ! Gradient boundary condition
        do ix = 1,nx
-          v_next(ix,ny+1) = v_next(ix,ny)
+          v(ix,ny+1) = v(ix,ny)
        end do
     case ("Per","PER","per") ! Periodic boundary condition
        do ix = 1,nx
-          v_next(ix,ny+1) = v_next(ix,2)
+          v(ix,ny+1) = v(ix,2)
        end do
     end select
   end subroutine set_bc_v
