@@ -1,15 +1,20 @@
 import netCDF4 as ncdf
 import numpy as np
 import matplotlib.pyplot as plt
-from stat_ncl import *
 import datetime as dt
 grdname="eqpac_30"
 dir_io="../..//OUTPUTS/OGCM/"
-fflag=grdname+"_H120_cd_1.3_1_20"
+fflag=grdname+"_H120_cd1.4_1_20"
 
 fname_base=dir_io+"avg_spinup_clm_"+fflag+".nc"
 fname_base_sst="../SST/ERSST_v5_"+grdname+"_clm.nc"
 fname_out="basic_clm_"+fflag+".nc"
+
+def clmmon(var):
+    var_clm=var[0:12].copy()
+    for i in range(0,12):
+        var_clm[i]=np.nanmean(var[i::12],axis=0)
+    return(var_clm)
 
 nc_base=ncdf.Dataset(fname_base,"r")
 lon=nc_base.variables["lon_p"][:]
