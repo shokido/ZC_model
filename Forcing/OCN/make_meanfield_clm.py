@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import datetime as dt
 grdname="eqpac_30"
-dir_io="../..//OUTPUTS/OGCM/"
+dir_io="../../OUTPUTS/OGCM/"
 fflag=grdname+"_H120_cd1.4_1_20"
 
 fname_base=dir_io+"avg_spinup_clm_"+fflag+".nc"
