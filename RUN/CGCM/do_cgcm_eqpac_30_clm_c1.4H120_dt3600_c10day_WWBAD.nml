@@ -10,17 +10,17 @@ time_couple=864000
 fname_grd_ocn="../../INPUT/OCN/grid_eqpac_30.nc"
 flag_ini_ocn="F"
 fname_ini_ocn=""
-fname_avg_ocn="../../OUTPUTS/CGCM/avg_cgcm_full_eqpac_30_ocn_clm_H120_cd1.3_dt3600_c10day_WWBAD.nc"
+fname_avg_ocn="../../OUTPUTS/CGCM/avg_cgcm_full_eqpac_30_ocn_clm_H120_cd1.4_dt3600_c10day_WWBAD.nc"
 out_avg_flag=100
 out_avg_int=1
-fname_diag_ocn="../../OUTPUTS/CGCM/diag_cgcm_full_eqpac_30_ocn_clm_H120_cd1.3_dt3600_c10day_WWBAD.nc"
+fname_diag_ocn="../../OUTPUTS/CGCM/diag_cgcm_full_eqpac_30_ocn_clm_H120_cd1.4_dt3600_c10day_WWBAD.nc"
 out_diag_flag=100
 out_diag_int=1
-fname_rst_ocn="../../OUTPUTS/CGCM/rst_cgcm_full_eqpac_30_ocn_clm_H120_cd1.3_dt3600_c10day_WWBAD.nc"
+fname_rst_ocn="../../OUTPUTS/CGCM/rst_cgcm_full_eqpac_30_ocn_clm_H120_cd1.4_dt3600_c10day_WWBAD.nc"
 /
 &io_atm
 fname_grd_atm="../../INPUT/ATM/grid_256.nc"
-fname_avg_atm="../../OUTPUTS/CGCM/avg_cgcm_full_eqpac_30_atm_clm_H120_cd1.3_dt3600_c10day_WWBAD.nc"
+fname_avg_atm="../../OUTPUTS/CGCM/avg_cgcm_full_eqpac_30_atm_clm_H120_cd1.4_dt3600_c10day.nc"
 out_avg_flag=100
 out_avg_int=1
 /
@@ -30,7 +30,7 @@ fname_coupler="../../INPUT/COUPLER/coupler_eqpac_30_atm_256.nc"
 &param_ocn
 oset%H1=50
 oset%H2=70
-oset%cd_bulk=0.0013
+oset%cd_bulk=0.0014
 oset%eps_s_sst_day=125.0
 oset%Tsub_gamma=0.75
 oset%kick_WWB="T"
@@ -53,7 +53,7 @@ Lcycle_ocn_sstm="T"
 Tcycle_ocn_sstm=365
 /
 &sstm_io_ocn 
-fnames_ocn_sstm(1)="../../Forcing/OCN/basic_clm_eqpac_30_H120_cd1.3_1_20.nc"
+fnames_ocn_sstm(1)="../../Forcing/OCN/basic_clm_eqpac_30_H120_cd1.4_1_20.nc"
 /
 &tauxm_param_ocn 
 nfile_ocn_tauxm=1
@@ -93,7 +93,7 @@ Lcycle_ocn_um="T"
 Tcycle_ocn_um=365
 /
 &um_io_ocn 
-fnames_ocn_um(1)="../../Forcing/OCN/basic_clm_eqpac_30_H120_cd1.3_1_20.nc"
+fnames_ocn_um(1)="../../Forcing/OCN/basic_clm_eqpac_30_H120_cd1.4_1_20.nc"
 /
 &vm_param_ocn 
 nfile_ocn_vm=1
@@ -103,7 +103,7 @@ Lcycle_ocn_vm="T"
 Tcycle_ocn_vm=365
 /
 &vm_io_ocn 
-fnames_ocn_vm(1)="../../Forcing/OCN/basic_clm_eqpac_30_H120_cd1.3_1_20.nc"
+fnames_ocn_vm(1)="../../Forcing/OCN/basic_clm_eqpac_30_H120_cd1.4_1_20.nc"
 /
 &wm_param_ocn 
 nfile_ocn_wm=1
@@ -113,7 +113,7 @@ Lcycle_ocn_wm="T"
 Tcycle_ocn_wm=365
 /
 &wm_io_ocn 
-fnames_ocn_wm(1)="../../Forcing/OCN/basic_clm_eqpac_30_H120_cd1.3_1_20.nc"
+fnames_ocn_wm(1)="../../Forcing/OCN/basic_clm_eqpac_30_H120_cd1.4_1_20.nc"
 /
 &Tzm_param_ocn 
 nfile_ocn_Tzm=1
