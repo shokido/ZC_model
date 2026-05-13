@@ -17,8 +17,6 @@ module run_types
   end type vector_3d
   type :: ocn_dta
      integer :: nx_p,ny_p
-     integer :: nx_u,ny_u
-     integer :: nx_v,ny_v
      type(vector_1d) :: lon_p, lat_p
      type(vector_1d) :: lon_u, lat_u
      type(vector_1d) :: lon_v, lat_v
