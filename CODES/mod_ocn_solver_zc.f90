@@ -542,7 +542,6 @@ contains
    call set_bc_v(ogrd%nx_p,ogrd%ny_p,v_tmp(0:ogrd%nx_p+1,1:ogrd%ny_p+1),&
         & oset%wbc_flag_v,oset%ebc_flag_v,oset%nbc_flag_v,oset%sbc_flag_v,&
         & oset%slip_ind)
-
    ! RK-2 step
     call get_rhs_u(ogrd,oset,u_tmp,v_tmp,h_tmp,rhs2_u)
     do iy = 1,ogrd%ny_p
