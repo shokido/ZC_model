@@ -117,7 +117,7 @@ program zc_cgcm_full
   namelist/io_ocn/fname_rst_ocn
   namelist/param_ocn/oset
   namelist/io_atm/fname_grd_atm
-  namelist/io_atm/fname_avg_atm,out_avg_flag,out_avg_int
+  namelist/io_atm/fname_avg_atm
   namelist/param_atm/aset
   namelist/io_coupler/fname_coupler
   namelist/param_coupler/kick_ini
