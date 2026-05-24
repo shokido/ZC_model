@@ -324,23 +324,32 @@ contains
     nx_p=grd%nx_p;ny_p=grd%ny_p
     call get_variable(fname,"h_sw",(/1,1/),(/grd%nx_p+2,grd%ny_p+2/),v_2d)
     grd%h_sw%val(0:nx_p+1,0:ny_p+1)=v_2d(1:nx_p+2,1:ny_p+2)
+    call get_variable(fname,"u_sw",(/1,1/),(/grd%nx_p+1,grd%ny_p+2/),v_2d)
+    grd%u_sw%val(1:nx_p+1,0:ny_p+1)=v_2d(1:nx_p+1,1:ny_p+2)
+    call get_variable(fname,"v_sw",(/1,1/),(/grd%nx_p+2,grd%ny_p+1/),v_2d)
+    grd%v_sw%val(0:nx_p+1,1:ny_p+1)=v_2d(1:nx_p+2,1:ny_p+1)
+  end subroutine read_restart_ocn_dyn
+  subroutine read_restart_ocn_dyn_LF(fname,grd)
+    implicit none
+    character(len=maxlen),intent(in) :: fname
+    type(ocn_dta),intent(inout) :: grd
+    integer :: nx_p,ny_p
+    real(idx),allocatable :: v_2d(:,:)
+    write(*,*) "Ocean dynamical initial condition is from "//trim(fname)
+    nx_p=grd%nx_p;ny_p=grd%ny_p
+    call get_variable(fname,"h_sw",(/1,1/),(/grd%nx_p+2,grd%ny_p+2/),v_2d)
+    grd%h_sw%val(0:nx_p+1,0:ny_p+1)=v_2d(1:nx_p+2,1:ny_p+2)
     call get_variable(fname,"h_sw_past",(/1,1/),(/grd%nx_p+2,grd%ny_p+2/),v_2d)
     grd%h_sw_past%val(0:nx_p+1,0:ny_p+1)=v_2d(1:nx_p+2,1:ny_p+2)
-    call get_variable(fname,"h_sw_next",(/1,1/),(/grd%nx_p+2,grd%ny_p+2/),v_2d)
-    grd%h_sw_next%val(0:nx_p+1,0:ny_p+1)=v_2d(1:nx_p+2,1:ny_p+2)
     call get_variable(fname,"u_sw",(/1,1/),(/grd%nx_p+1,grd%ny_p+2/),v_2d)
     grd%u_sw%val(1:nx_p+1,0:ny_p+1)=v_2d(1:nx_p+1,1:ny_p+2)
     call get_variable(fname,"u_sw_past",(/1,1/),(/grd%nx_p+1,grd%ny_p+2/),v_2d)
     grd%u_sw_past%val(1:nx_p+1,0:ny_p+1)=v_2d(1:nx_p+1,1:ny_p+2)
-    call get_variable(fname,"u_sw_next",(/1,1/),(/grd%nx_p+1,grd%ny_p+2/),v_2d)
-    grd%u_sw_next%val(1:nx_p+1,0:ny_p+1)=v_2d(1:nx_p+1,1:ny_p+2)
     call get_variable(fname,"v_sw",(/1,1/),(/grd%nx_p+2,grd%ny_p+1/),v_2d)
     grd%v_sw%val(0:nx_p+1,1:ny_p+1)=v_2d(1:nx_p+2,1:ny_p+1)
     call get_variable(fname,"v_sw_past",(/1,1/),(/grd%nx_p+2,grd%ny_p+1/),v_2d)
     grd%v_sw_past%val(0:nx_p+1,1:ny_p+1)=v_2d(1:nx_p+2,1:ny_p+1)
-    call get_variable(fname,"v_sw_next",(/1,1/),(/grd%nx_p+2,grd%ny_p+1/),v_2d)
-    grd%v_sw_next%val(0:nx_p+1,1:ny_p+1)=v_2d(1:nx_p+2,1:ny_p+1)
-  end subroutine read_restart_ocn_dyn
+  end subroutine read_restart_ocn_dyn_LF
   subroutine read_restart_ocn_sst(fname,grd)
     implicit none
     character(len=maxlen),intent(in) :: fname

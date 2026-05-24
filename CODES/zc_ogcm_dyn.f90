@@ -80,7 +80,11 @@ program zc_ogcm_dyn
   call initialize_ocn_dyn(ogrd)
   call initialize_ocn_visc(ogrd,oset)
   if (flag_ini_ocn == "T") then
+#if defined LEAPFLOG
+     call read_restart_ocn_dyn_LF(fname_ini_ocn,ogrd)
+#else
      call read_restart_ocn_dyn(fname_ini_ocn,ogrd)
+#endif
   end if
   ! Read forcing fields
   call read_data_TLL_p(nfile_ocn_taux,fnames_ocn_taux,timename_ocn_taux,varname_ocn_taux,&

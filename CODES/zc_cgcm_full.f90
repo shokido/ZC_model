@@ -206,7 +206,11 @@ program zc_cgcm_full
   call initialize_ocn_sst(ogrd)
   call initialize_ocn_visc(ogrd,oset)
   if (flag_ini_ocn == "T") then
+#if defined LEAPFLOG
+     call read_restart_ocn_dyn_LF(fname_ini_ocn,ogrd)
+#else
      call read_restart_ocn_dyn(fname_ini_ocn,ogrd)
+#endif
      call read_restart_ocn_sst(fname_ini_ocn,ogrd)
   end if
 
